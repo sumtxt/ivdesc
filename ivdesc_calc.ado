@@ -1,5 +1,5 @@
 /*
-Version 1.0.0 (April 6, 2019)
+Version 1.0.1 (April 30, 2019)
 Author:  Moritz Marbach, moritz.marbach@gess.ethz.ch
 */
 

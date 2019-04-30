@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 1.0.0  August 6, 2018 @ 18:24:26}{...}
+{* *! version 1.0.1  April 30, 2019 @ 18:24:26}{...}
 {cmd:help ivdesc}
 {hline}
 

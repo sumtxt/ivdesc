@@ -1,5 +1,5 @@
 /*
-Version 1.0.0 (April 6, 2019)
+Version 1.0.1 (April 30, 2019)
 Author:  Moritz Marbach, moritz.marbach@gess.ethz.ch
 */
 
@@ -59,14 +59,14 @@ program ivdesc,  rclass
 
 			if missing("`variance'") {
 
-				matrix input res = ( `mu', `se_mu', 1, 0 \ `mu_co', `se_mu_co', `pi_co', `se_pi_co' \ `mu_at', `se_mu_at', `pi_at', `se_pi_at' \ `mu_nt', `se_mu_nt', `pi_nt', `se_pi_nt' )
+				matrix input res = ( `mu', `se_mu', 1, 0 \ `mu_co', `se_mu_co', `pi_co', `se_pi_co'  \ `mu_nt', `se_mu_nt', `pi_nt', `se_pi_nt' \ `mu_at', `se_mu_at', `pi_at', `se_pi_at' )
 				matrix colnames res = "Mean" "Boot.-SE" "Proportion" "Boot.-SE"
 
 			} 
 
 			else {
 
-				matrix input res = ( `mu', `se_mu', `v', 1, 0 \ `mu_co', `se_mu_co', `v_co', `pi_co', `se_pi_co' \ `mu_at', `se_mu_at', `v_at',  `pi_at', `se_pi_at' \ `mu_nt', `se_mu_nt', `v_nt',  `pi_nt', `se_pi_nt' )
+				matrix input res = ( `mu', `se_mu', `v', 1, 0 \ `mu_co', `se_mu_co', `v_co', `pi_co', `se_pi_co' \ `mu_nt', `se_mu_nt', `v_nt',  `pi_nt', `se_pi_nt' \ `mu_at', `se_mu_at', `v_at',  `pi_at', `se_pi_at' )
 				matrix colnames res = "Mean" "Boot.-SE" "Variance" "Proportion" "Boot.-SE"
 
 			}
