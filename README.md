@@ -1,14 +1,13 @@
 # ivdesc
 
-Profiling Compliers and Non-compliers for Instrumental Variable Analysis
+Profiling compliers and non-compliers for instrumental variable analysis
 
 ### Install R Package 
 
 To install the R package directly from Github use `install_github()` function from the `devtools` package that you might have to install first via `install.packages("devtools")`. 
 
 ```R
-library(devtools)
-install_github("sumtxt/ivdesc/R/ivdesc")
+devtools::install_github("sumtxt/ivdesc/R/ivdesc")
 ```
 
 ### Install STATA Package
