@@ -1,6 +1,6 @@
 v 1.0.1
 d Materials by Moritz Marbach
-d ETH Zurich
+d ETH Zürich
 d moritz.marbach@gess.ethz.ch
 d https://github.com/sumtxt/ivdesc/
 

@@ -1,6 +1,7 @@
 /*
 Version 1.0.1 (April 30, 2019)
 Author:  Moritz Marbach, moritz.marbach@gess.ethz.ch
+URL: https://github.com/sumtxt/ivdesc
 */
 
 program ivdesc,  rclass
