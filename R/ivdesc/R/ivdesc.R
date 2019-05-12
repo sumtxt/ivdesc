@@ -32,7 +32,7 @@
 #'
 #' 
 #' @references
-#' Moritz Marbach and Dominik Hangartner. (2019). Profiling Compliers and Non-compliers for Instrumental Variable Analysis.
+#' Moritz Marbach and Dominik Hangartner. (2019). Profiling Compliers and Non-compliers for Instrumental Variable Analysis. Available at https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3380247. 
 #' 
 #' 
 #' @examples 
