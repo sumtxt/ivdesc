@@ -21,11 +21,13 @@
 {marker options}{...}
 {title:Options}
 
-{phang}{cmd:noboot} report analytical standard errors instead of bootstrap standard errors 
+{phang}{opt no:boot} report analytical standard errors instead of bootstrap standard errors 
 
-{phang}{cmd:reps(}{it:integer}{cmd:)}  perform # bootstrap replications; default is reps(1000)
+{phang}{opt r:eps(#)}  perform # bootstrap replications; default is reps(1000)
 
-{phang}{cmd:variance} also report the variance of the covariate for each subgroup 
+{phang}{opt var:iance} also report the variance of the covariate for each subgroup 
+
+{phang}{opt nobal:ance} skip the balance test 
 
 {phang}{cmd:fmt(}{it:subopts}{cmd:)} passed through to {cmd:estout matrix(,subopts)} that handles the display of the estimates
 
@@ -44,6 +46,8 @@ or {it:instrument} are deleted before estimation (listwise deletion).
 
 {phang} If {cmd:noboot}, analytical standard errors are calculated for the mean of the whole sample as well as the never-taker and always-taker subpopulation. For the complier subpopulation no analytical estimator for the standard error is available.  
 
+{phang} The balance test is a t-test allowing for unequal variances. 
+
 
 {title:Examples}
 
@@ -60,6 +64,10 @@ or {it:instrument} are deleted before estimation (listwise deletion).
 {synoptset 15 tabbed}{...}
 {p2col 5 15 19 2: Matrices}{p_end}
 {synopt:{cmd:r(ivdesc)}} all estimates {p_end}
+
+{p2col 5 15 19 2: Scalar}{p_end}
+{synopt:{cmd:r(pval)}} p-value from balance test {p_end}
+
 
 {title:Reference}
 {p 4 8 2}

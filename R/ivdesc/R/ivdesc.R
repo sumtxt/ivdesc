@@ -10,6 +10,8 @@
 #' @param boot Replace all standard errors with bootstrap standard errors?
 #' @param bootn number of bootstraps (ignored if \code{boot=FALSE} )
 #' @param variance Calculate the variance of the covariate for each subgroup? 
+#' @param balance Run balance test? 
+#' @param ... additional arguments to be passed to \code{ivdesc_all} 
 #' 
 #' @details 
 #' This function estimates the mean and the associated standard error of \code{X} for the complier, never-taker and always-taker subpopulation within a sample where some, but not all, units are encouraged by instrument \code{Z} to take the treatment \code{D}. 
@@ -19,9 +21,10 @@
 #' 
 #' If \code{boot=FALSE}, analytical standard errors are calculated for the mean of the whole sample as well as the never-taker and always-taker subpopulation. For the complier subpopulation no analytical estimator for the standard error is available. 
 #' 
+#' The balance test is a t-test allowing for unequal variances. 
 #' 
 #' @return 
-#' Returns a \code{data.frame} of estimates for each subgroup (\code{co}: complier, \code{nt}: never-taker, \code{at} : always-taker) and the full sample: 
+#' Returns a object \code{ivdesc} with estimates for each subgroup (\code{co}: complier, \code{nt}: never-taker, \code{at} : always-taker) and the full sample: 
 #' 
 #' \itemize{
 #' 	\item \code{mu} and \code{mu_se} : Mean of \code{X} and standard error
@@ -29,6 +32,8 @@
 #'  \item \code{var}: Variance of \code{X} (if \code{variance=TRUE})
 #' }
 #'
+#' Can be coerced to a proper \code{data.frame} using \code{as.data.frame}.
+#' 
 #' @seealso 
 #' \code{\link[AER]{ivreg}}
 #'
@@ -64,7 +69,7 @@
 #' @importFrom knitr kable
 #' 
 #' @export
-ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000, ...){
+ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000, balance=TRUE, ...){
 
 	# Checks 
 	if(!is.numeric(D)) stop("D has to be numeric with values c(0,1,NA).")
@@ -94,13 +99,29 @@ ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000, ...){
 	else { boot <- bootn } 
 
   if( (mean(D[Z==1]==1)-mean(D[Z==0]==1))<0 ) stop("First-stage is negative. Please reverse coding of Z.")
+  if( sum(D==Z)==length(D) ) stop("There is full compliance with the instrument (D=Z).")
   	
 	res <- ivdesc_all(X,D,Z,boot=boot,variance=variance,...)
+
+	if( balance ){
+		bal <- t.test(X ~ Z, var.equal=FALSE)
+		attr(res, "pval") <- bal$p.value
+	}
+	
+	class(res) <- c('ivdesc', 'data.frame')
 
 	return(res)
 	}
 
-	
-
+#' @method print ivdesc
+#' @export    
+print.ivdesc <- function(x) {
+	class(x) <- 'data.frame'
+	print(kable(x))
+	cat("\n")
+	cat("Balance test: H0: E[X|Z=0]=E[X|Z=1]\n")
+	cat("Pr(|T| > |t|) = ", format(attr(x,'pval'),digits=3), "\n\n")
+	invisible(x)
+}
 
 

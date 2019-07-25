@@ -7,7 +7,7 @@ URL: https://github.com/sumtxt/ivdesc
 program ivdesc,  rclass
 	version 12
 
-	syntax varlist(default=none min=1 max=3) [if/] [in/] [, NOboot VARiance fmt(passthru) Reps(integer 1000)]
+	syntax varlist(default=none min=1 max=3) [if/] [in/] [, NOboot VARiance NOBALance fmt(passthru) Reps(integer 1000)]
 
 	local X: word 1 of `varlist'
 	local D: word 2 of `varlist'
@@ -21,6 +21,13 @@ program ivdesc,  rclass
 		else {
 			quietly: keep if `X'!=. & `D'!=. & `Z'!=. 
 		}
+
+		quietly: count if `D'!=`Z'
+		if r(N)<1 {
+			display as error "There is full compliance with the instrument (D=Z)."
+    	exit 42
+    }
+
 
 		if missing("`noboot'") {
 			
@@ -109,8 +116,21 @@ program ivdesc,  rclass
 		matrix rownames res = "whole sample" "complier" "never-taker" "always-taker"
 			
 		estout matrix(res, `fmt'), mlabels(none) title("Variable: " `X')
-
+		
 		return mat ivdesc = res
+
+		if missing("`nobalance'") {
+
+			quietly: ttest `X', by(`Z') unequal
+			local p2 : di %6.4f r(p)
+
+			di as txt ""
+			di as txt "Balance test: H0: E[X|Z=0]=E[X|Z=1]"
+			di "Pr(|T| > |t|) = `p2'"
+
+			return scalar pval = `p2'
+
+		}
 
 	restore
 
