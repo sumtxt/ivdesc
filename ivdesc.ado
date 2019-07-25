@@ -44,9 +44,21 @@ program ivdesc,  rclass
 
 			}
 
-			bootstrap mu_co=r(mu_co) mu_at=r(mu_at) mu_nt=r(mu_nt) mu=r(mu) /// 
-								pi_co=r(pi_co) pi_at=r(pi_at) pi_nt=r(pi_nt), reps(`reps') notable nolegend nowarn noheader: ivdesc_calc `X' `D' `Z' 
-			
+			if `mu_at'==. {
+				bootstrap mu_co=r(mu_co) mu_nt=r(mu_nt) mu=r(mu) /// 
+									pi_co=r(pi_co) pi_nt=r(pi_nt), reps(`reps') notable nolegend nowarn noheader: ivdesc_calc `X' `D' `Z' 
+			} 
+
+			else if `mu_nt'==. {
+				bootstrap mu_co=r(mu_co) mu_at=r(mu_at) mu=r(mu) /// 
+									pi_co=r(pi_co) pi_at=r(pi_at), reps(`reps') notable nolegend nowarn noheader: ivdesc_calc `X' `D' `Z' 					
+			}
+
+			else {
+				bootstrap mu_co=r(mu_co) mu_at=r(mu_at) mu_nt=r(mu_nt) mu=r(mu) /// 
+									pi_co=r(pi_co) pi_at=r(pi_at) pi_nt=r(pi_nt), reps(`reps') notable nolegend nowarn noheader: ivdesc_calc `X' `D' `Z' 
+			}
+
 			matrix bootse = e(se)
 
 			local se_mu = bootse[1,colnumb(bootse,"mu")]

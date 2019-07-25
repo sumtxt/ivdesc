@@ -31,7 +31,7 @@ program ivdesc_calc,  rclass
 
 		local pi_co = `pi_co1'-`pi_co2'
 		local se_pi_co = sqrt( (`v_pi_co1'/`N_z1') + (`v_pi_co2'/`N_z0') )
-
+		
 		summarize `D' if `Z'==1
 		local pi_nt = 1-r(mean)
 		local se_pi_nt = sqrt( r(Var)/`N_z1' )
@@ -58,17 +58,57 @@ program ivdesc_calc,  rclass
 		count if `Z'==0 & `D'==1
 		local k_at = r(N) 
 
-		local mu_co = (1/`pi_co') * `mu' - (`pi_nt'/`pi_co') * `mu_nt' - (`pi_at'/`pi_co') * `mu_at'
+		if `k_at'<2 {
 
-		if !missing("`variance'") {
+			local mu_co = (1/`pi_co') * `mu' - (`pi_nt'/`pi_co') * `mu_nt' 
 
-			local v_co1 = (`v_nt' * `pi_nt') + (`v_at' * `pi_at')
+			if !missing("`variance'") {
 
-			local v_co2 = ( `mu_co' * `mu_co' * `pi_co' * (1-`pi_co') ) + ( `mu_nt' *`mu_nt' * `pi_nt' * (1-`pi_nt') ) + ( `mu_at' * `mu_at' * `pi_at' * (1-`pi_at') ) 
+				local v_co1 = (`v_nt' * `pi_nt') 
 
-			local v_co3 = (`mu_nt' * `pi_nt' * `mu_co' * `pi_co') + (`mu_at' * `pi_at' * `mu_co' * `pi_co') + (`mu_at' * `pi_at' * `mu_nt' * `pi_nt') 
+				local v_co2 = ( `mu_co' * `mu_co' * `pi_co' * (1-`pi_co') ) + ( `mu_nt' *`mu_nt' * `pi_nt' * (1-`pi_nt') ) 
 
-			local v_co = (1/`pi_co')*`v' - (1/`pi_co')*(`v_co1' + `v_co2' -2 * `v_co3')
+				local v_co3 = (`mu_nt' * `pi_nt' * `mu_co' * `pi_co') 
+
+				local v_co = (1/`pi_co')*`v' - (1/`pi_co')*(`v_co1' + `v_co2' -2 * `v_co3')
+
+			}
+
+		}
+
+		else if `k_nt'<2 {
+
+			local mu_co = (1/`pi_co') * `mu' - (`pi_at'/`pi_co') * `mu_at'
+
+			if !missing("`variance'") {
+
+				local v_co1 = (`v_at' * `pi_at')
+
+				local v_co2 = ( `mu_co' * `mu_co' * `pi_co' * (1-`pi_co') ) + ( `mu_at' * `mu_at' * `pi_at' * (1-`pi_at') ) 
+
+				local v_co3 = (`mu_at' * `pi_at' * `mu_co' * `pi_co')
+
+				local v_co = (1/`pi_co')*`v' - (1/`pi_co')*(`v_co1' + `v_co2' -2 * `v_co3')
+
+			}
+		
+		} 
+
+		else {
+
+			local mu_co = (1/`pi_co') * `mu' - (`pi_nt'/`pi_co') * `mu_nt' - (`pi_at'/`pi_co') * `mu_at'
+
+			if !missing("`variance'") {
+
+				local v_co1 = (`v_nt' * `pi_nt') + (`v_at' * `pi_at')
+
+				local v_co2 = ( `mu_co' * `mu_co' * `pi_co' * (1-`pi_co') ) + ( `mu_nt' *`mu_nt' * `pi_nt' * (1-`pi_nt') ) + ( `mu_at' * `mu_at' * `pi_at' * (1-`pi_at') ) 
+
+				local v_co3 = (`mu_nt' * `pi_nt' * `mu_co' * `pi_co') + (`mu_at' * `pi_at' * `mu_co' * `pi_co') + (`mu_at' * `pi_at' * `mu_nt' * `pi_nt') 
+
+				local v_co = (1/`pi_co')*`v' - (1/`pi_co')*(`v_co1' + `v_co2' -2 * `v_co3')
+
+			}
 
 		}
 
