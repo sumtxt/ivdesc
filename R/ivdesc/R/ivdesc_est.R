@@ -36,7 +36,22 @@ ivdesc_mu_F0 <- function(X,D,Z){
 	mu_at = mean(X[Z==0 & D==1])
 	mu = mean(X)
 
-	mu_co = (1/pi_co) * mu - (pi_nt/pi_co) * mu_nt - (pi_at/pi_co) * mu_at
+  K_nt = sum(Z==1 & D==0)
+  K_at = sum(Z==0 & D==1)
+
+	if( K_at<2){
+		
+		mu_co = (1/pi_co) * mu - (pi_nt/pi_co) * mu_nt 
+
+	} else if (K_nt<2) {
+
+		mu_co = (1/pi_co) * mu - (pi_at/pi_co) * mu_at 		
+
+	} else {	
+
+		mu_co = (1/pi_co) * mu - (pi_nt/pi_co) * mu_nt - (pi_at/pi_co) * mu_at
+		
+		}
 
 	dat <- data.frame(mu=mu, mu_co=mu_co,mu_nt=mu_nt,mu_at=mu_at, 
 		pi_co=pi_co, pi_nt=pi_nt, pi_at=pi_at)
