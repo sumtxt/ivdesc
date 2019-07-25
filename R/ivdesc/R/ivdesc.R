@@ -62,7 +62,7 @@
 #' @importFrom knitr kable
 #' 
 #' @export
-ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000){
+ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000, ...){
 
 	# Checks 
 	if(!is.numeric(D)) stop("D has to be numeric with values c(0,1,NA).")
@@ -74,7 +74,7 @@ ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000){
 	if( length(D)!=length(Z) ) stop("D has to be of the same length of Z.") 
 	if( length(X)!=length(Z) ) stop("X has to be of the same length of Z.") 
 	if( length(X)!=length(D) ) stop("X has to be of the same length of D.")
-		
+	
 	if( boot==TRUE & bootn<2 ) stop("bootn has be larger than 2.")
 
 	if (!is.numeric(X)){ 
@@ -90,8 +90,8 @@ ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000){
 
 	if(boot==FALSE) { boot <- 0 }
 	else { boot <- bootn } 
-
-	res <- ivdesc_all(X,D,Z,boot=boot,variance=variance)
+  	
+	res <- ivdesc_all(X,D,Z,boot=boot,variance=variance,...)
 
 	return(res)
 	}

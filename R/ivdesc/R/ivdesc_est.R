@@ -45,7 +45,7 @@ ivdesc_mu_F0 <- function(X,D,Z){
 	}
 
 
-ivdesc_all <- function(X,D,Z,boot,variance){
+ivdesc_all <- function(X,D,Z,boot,variance,kappa=FALSE){
 
 	N <- length(X)
 
@@ -82,6 +82,8 @@ ivdesc_all <- function(X,D,Z,boot,variance){
 
 
 	# Mean / variance / standard deviation co
+
+	if( kappa == FALSE){
 
 	if( K_at<2){
 		
@@ -138,6 +140,14 @@ ivdesc_all <- function(X,D,Z,boot,variance){
 		}
 	
 		}
+	
+	} else {
+
+		kappa <- ( 1-((D*(1-Z))/mean(Z==0)) - (((1-D)*Z)/mean(Z==1)) )
+		mu_co <- (1/pi_co)*mean(X*kappa)
+		variance <- FALSE 
+
+	}
 
 	se_mu = sd/sqrt(N)
 	se_mu_co = NA
