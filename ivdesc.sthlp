@@ -40,6 +40,8 @@
 {phang} Observations with missing values in either {it:covariate}, {it:treatment}, 
 or {it:instrument} are deleted before estimation (listwise deletion). 
 
+{phang} One-sided noncompliance is supported. The mean for the always-/never-taker subpopulation will only be computed if there are at least two observed units in these subpopulations. 
+
 {phang} If {cmd:noboot}, analytical standard errors are calculated for the mean of the whole sample as well as the never-taker and always-taker subpopulation. For the complier subpopulation no analytical estimator for the standard error is available.  
 
 
