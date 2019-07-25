@@ -31,7 +31,12 @@ program ivdesc_calc,  rclass
 
 		local pi_co = `pi_co1'-`pi_co2'
 		local se_pi_co = sqrt( (`v_pi_co1'/`N_z1') + (`v_pi_co2'/`N_z0') )
-		
+
+		if `pi_co'<0 {
+			display as error "First-stage is negative. Please reverse coding of Z."
+    	exit 42
+    }
+
 		summarize `D' if `Z'==1
 		local pi_nt = 1-r(mean)
 		local se_pi_nt = sqrt( r(Var)/`N_z1' )
@@ -75,7 +80,7 @@ program ivdesc_calc,  rclass
 			}
 
 		}
-
+		
 		else if `k_nt'<2 {
 
 			local mu_co = (1/`pi_co') * `mu' - (`pi_at'/`pi_co') * `mu_at'

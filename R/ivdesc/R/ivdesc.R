@@ -90,6 +90,8 @@ ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000, ...){
 
 	if(boot==FALSE) { boot <- 0 }
 	else { boot <- bootn } 
+
+  if( (mean(D[Z==1]==1)-mean(D[Z==0]==1))<0 ) stop("First-stage is negative. Please reverse coding of Z.")
   	
 	res <- ivdesc_all(X,D,Z,boot=boot,variance=variance,...)
 
