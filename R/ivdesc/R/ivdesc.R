@@ -105,7 +105,7 @@ ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000, balance=TRUE, .
 
 	if( balance ){
 		bal <- t.test(X ~ Z, var.equal=FALSE)
-		attr(res, "pval") <- bal$p.value
+		attr(res, "balance_pval") <- bal$p.value
 	}
 	
 	class(res) <- c('ivdesc', 'data.frame')
@@ -118,9 +118,17 @@ ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000, balance=TRUE, .
 print.ivdesc <- function(x) {
 	class(x) <- 'data.frame'
 	print(kable(x))
-	cat("\n")
-	cat("Balance test: H0: E[X|Z=0]=E[X|Z=1]\n")
-	cat("Pr(|T| > |t|) = ", format(attr(x,'pval'),digits=3), "\n\n")
+	pvals <- attr(x, 'pvals')
+	balance_pval <- attr(x, 'balance_pval')
+	if( !is.null(pvals) ){
+		cat("\nBootstrapped p-values:")
+		print(kable(pvals, col.names=c("group","Pr(T<t)", "Pr(T>t)")))
+		cat("\n\n")
+	} else {cat("\n")}
+	if( !is.null(balance_pval) ){
+		cat("Balance test: H0: E[X|Z=0]=E[X|Z=1]\n")
+		cat("Pr(|T| > |t|) = ", format(attr(x,'balance_pval'),digits=3), "\n\n")
+	}
 	invisible(x)
 }
 

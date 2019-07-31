@@ -53,20 +53,26 @@ program ivdesc,  rclass
 
 			if `mu_at'==. {
 				bootstrap mu_co=r(mu_co) mu_nt=r(mu_nt) mu=r(mu) /// 
-									pi_co=r(pi_co) pi_nt=r(pi_nt), reps(`reps') notable nolegend nowarn noheader: ivdesc_calc `X' `D' `Z' 
+									pi_co=r(pi_co) pi_nt=r(pi_nt) ///
+									p_co_s_nt=(r(mu_co)<r(mu_nt)) p_co_g_nt=(r(mu_co)>r(mu_nt)), reps(`reps') notable nolegend nowarn noheader: ivdesc_calc `X' `D' `Z' 
 			} 
 
 			else if `mu_nt'==. {
 				bootstrap mu_co=r(mu_co) mu_at=r(mu_at) mu=r(mu) /// 
-									pi_co=r(pi_co) pi_at=r(pi_at), reps(`reps') notable nolegend nowarn noheader: ivdesc_calc `X' `D' `Z' 					
+									pi_co=r(pi_co) pi_at=r(pi_at) /// 
+									p_co_s_at=(r(mu_co)<r(mu_at)) p_co_g_nt=(r(mu_co)>r(mu_at)), reps(`reps') notable nolegend nowarn noheader: ivdesc_calc `X' `D' `Z' 					
 			}
 
 			else {
 				bootstrap mu_co=r(mu_co) mu_at=r(mu_at) mu_nt=r(mu_nt) mu=r(mu) /// 
-									pi_co=r(pi_co) pi_at=r(pi_at) pi_nt=r(pi_nt), reps(`reps') notable nolegend nowarn noheader: ivdesc_calc `X' `D' `Z' 
+									pi_co=r(pi_co) pi_at=r(pi_at) pi_nt=r(pi_nt) /// 
+									p_co_s_nt=(r(mu_co)<r(mu_nt)) p_co_g_nt=(r(mu_co)>r(mu_nt)) ///
+									p_co_s_at=(r(mu_co)<r(mu_at)) p_co_g_at=(r(mu_co)>r(mu_at)) ///
+									p_at_s_nt=(r(mu_at)<r(mu_nt)) p_at_g_nt=(r(mu_at)>r(mu_nt)), reps(`reps') notable nolegend nowarn noheader: ivdesc_calc `X' `D' `Z' 
 			}
 
 			matrix bootse = e(se)
+			matrix bootb = e(b_bs)
 
 			local se_mu = bootse[1,colnumb(bootse,"mu")]
 			local se_mu_co = bootse[1,colnumb(bootse,"mu_co")]
@@ -76,6 +82,13 @@ program ivdesc,  rclass
 			local se_pi_co = bootse[1,colnumb(bootse,"pi_co")]
 			local se_pi_at = bootse[1,colnumb(bootse,"pi_at")]
 			local se_pi_nt = bootse[1,colnumb(bootse,"pi_nt")]
+
+			local p_co_s_nt = bootb[1,colnumb(bootb,"p_co_s_nt")]
+			local p_co_g_nt = bootb[1,colnumb(bootb,"p_co_g_nt")]
+			local p_co_s_at = bootb[1,colnumb(bootb,"p_co_s_at")]
+			local p_co_g_at = bootb[1,colnumb(bootb,"p_co_g_at")]
+			local p_at_s_nt = bootb[1,colnumb(bootb,"p_at_s_nt")]
+			local p_at_g_nt = bootb[1,colnumb(bootb,"p_at_g_nt")]
 
 			if missing("`variance'") {
 
@@ -90,6 +103,10 @@ program ivdesc,  rclass
 				matrix colnames res = "Mean" "Boot.-SE" "Variance" "Proportion" "Boot.-SE"
 
 			}
+
+			matrix input pvals = ( `p_co_s_nt', `p_co_g_nt' \ `p_co_s_at', `p_co_g_at' \ `p_at_s_nt', `p_at_g_nt')
+			matrix colnames pvals = "Pr(T < t)" "Pr(T > t)"
+			matrix rownames pvals = "co vs nt" "co vs at" "at vs nt"
 
 		} 
 
@@ -116,8 +133,17 @@ program ivdesc,  rclass
 		matrix rownames res = "whole sample" "complier" "never-taker" "always-taker"
 			
 		estout matrix(res, `fmt'), mlabels(none) title("Variable: " `X')
+
+		
+
+		if missing("`noboot'") {
+			
+			estout matrix(pvals, `fmt'), mlabels(none) title("Bootstrapped p-values:")
+
+		}
 		
 		return mat ivdesc = res
+		return mat pvals = pvals
 
 		if missing("`nobalance'") {
 
@@ -128,7 +154,7 @@ program ivdesc,  rclass
 			di as txt "Balance test: H0: E[X|Z=0]=E[X|Z=1]"
 			di "Pr(|T| > |t|) = `p2'"
 
-			return scalar pval = `p2'
+			return scalar bal_pval = `p2'
 
 		}
 

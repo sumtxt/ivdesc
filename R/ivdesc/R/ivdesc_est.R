@@ -17,11 +17,28 @@ ivdesc_boot_sum <- function(boot){
 	se_pi_nt <- with(boot, sd(pi_nt, na.rm=TRUE) )
 	se_pi_at <- with(boot, sd(pi_at, na.rm=TRUE) )
 
+	p_co_nt <- with(boot, mean(mu_co>mu_nt, na.rm=TRUE) )
+	p_nt_co <- with(boot, mean(mu_nt>mu_co, na.rm=TRUE) )
+
+	p_co_at <- with(boot, mean(mu_co>mu_at, na.rm=TRUE) )
+	p_at_co <- with(boot, mean(mu_at>mu_co, na.rm=TRUE) )
+
+	p_at_nt <- with(boot, mean(mu_at>mu_nt, na.rm=TRUE) )
+	p_nt_at <- with(boot, mean(mu_nt>mu_at, na.rm=TRUE) )
+
 	agg <- data.frame(se_mu=se_mu, 
 		se_mu_co=se_mu_co, se_mu_nt=se_mu_nt, se_mu_at=se_mu_at,
 		se_pi_co=se_pi_co, se_pi_nt=se_pi_nt, se_pi_at=se_pi_at)
 
-	return(agg)
+	pvals <- as.data.frame(rbind(
+		c("co_vs_nt", p_nt_co, p_co_nt), 
+		c("co_vs_at", p_at_co, p_co_at),
+		c("at_vs_nt", p_nt_at, p_at_nt)
+		))
+
+	colnames(pvals) <- c("group", "smaller", "greater")
+
+	return(list(agg=agg, pvals=pvals))
 	}
 
 ivdesc_mu_F0_ <- function(split) with(analysis(split), ivdesc_mu_F0(X,D,Z))
@@ -204,7 +221,10 @@ ivdesc_all <- function(X,D,Z,boot,variance,kappa=FALSE){
 	if (boot>0) {
 
 		boots <- ivdesc_boot(X,D,Z,times=boot)
-		agg <- ivdesc_boot_sum(boots)
+		res <- ivdesc_boot_sum(boots)
+
+		pvals <- res$pvals
+		agg <- res$agg
 
 		est[est$group=='sample','mu_se'] <- agg$se_mu
 		est[est$group=='co','mu_se'] <- agg$se_mu_co
@@ -215,6 +235,7 @@ ivdesc_all <- function(X,D,Z,boot,variance,kappa=FALSE){
 		est[est$group=='nt','pi_se'] <- agg$se_pi_nt
 		est[est$group=='at','pi_se'] <- agg$se_pi_at
 
+		attr(est, "pvals") <- pvals  
 	}
 
 	return(est)
