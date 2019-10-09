@@ -1,6 +1,7 @@
 #' @importFrom rsample analysis
 #' @importFrom rsample bootstraps
 #' @importFrom purrr map_df
+#' @importFrom stats var t.test
 ivdesc_boot <- function(X,D,Z,times){
 	df <- bootstraps(data.frame(X=X,D=D,Z=Z), times=times)
 	return(map_df(df$splits, ivdesc_mu_F0_))

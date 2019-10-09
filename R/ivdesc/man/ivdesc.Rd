@@ -20,7 +20,7 @@ ivdesc(X, D, Z, variance = FALSE, boot = TRUE, bootn = 1000,
 
 \item{bootn}{number of bootstraps (ignored if \code{boot=FALSE} )}
 
-\item{balance}{Runs balance test}
+\item{balance}{Run balance test?}
 
 \item{...}{additional arguments to be passed to \code{ivdesc_all}}
 }
@@ -74,7 +74,7 @@ The balance test is a t-test allowing for unequal variances.
 
 }
 \references{
-Moritz Marbach and Dominik Hangartner. (2019). Profiling Compliers and Non-compliers for Instrumental Variable Analysis. Available at https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3380247.
+Moritz Marbach and Dominik Hangartner. (2019). Profiling Compliers and Non-compliers for Instrumental Variable Analysis. \emph{Political Analysis} (forthcoming).
 }
 \seealso{
 \code{\link[AER]{ivreg}}

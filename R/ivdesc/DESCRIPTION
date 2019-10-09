@@ -1,5 +1,5 @@
 Package: ivdesc
-Title: Profiling Compliers and Non-compliers for Instrumental Variable Analysis
+Title: Profiling Compliers and Non-Compliers for Instrumental Variable Analysis
 Version: 1.0.0
 Author: Moritz Marbach" <moritz.marbach@gess.ethz.ch> [aut, cre]
 Maintainer: Moritz Marbach <moritz.marbach@gess.ethz.ch>
@@ -8,7 +8,7 @@ Depends: R (>= 3.4.0)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 Imports:
     knitr (>= 1.20.8),
     purrr (>= 0.2.5),

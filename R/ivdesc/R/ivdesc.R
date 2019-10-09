@@ -39,7 +39,7 @@
 #'
 #' 
 #' @references
-#' Moritz Marbach and Dominik Hangartner. (2019). Profiling Compliers and Non-compliers for Instrumental Variable Analysis. Available at https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3380247. 
+#' Moritz Marbach and Dominik Hangartner. (2019). Profiling Compliers and Non-compliers for Instrumental Variable Analysis. \emph{Political Analysis} (forthcoming).
 #' 
 #' 
 #' @examples 
@@ -115,7 +115,7 @@ ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000, balance=TRUE, .
 
 #' @method print ivdesc
 #' @export    
-print.ivdesc <- function(x) {
+print.ivdesc <- function(x,...) {
 	class(x) <- 'data.frame'
 	print(kable(x))
 	pvals <- attr(x, 'pvals')
