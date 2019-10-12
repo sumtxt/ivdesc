@@ -43,7 +43,7 @@
 #' 
 #' 
 #' @examples 
-#'  \dontrun{
+#'  \donttest{
 #' 
 #'  # Example 1: Albertson/Lawrence (2009)
 #'  # see Marbach/Hangartner (2019) for details/discussion
@@ -53,17 +53,18 @@
 #' 
 #'  with(FoxDebate, ivdesc(X=readnews,D=watchpro,Z=conditn) )  
 #' 
+#'  }
 #' 
 #'  # Example 2: JTPA Data
 #' 
 #'  library(haven)
 #'  jtpa <- read_dta("http://fmwww.bc.edu/repec/bocode/j/jtpa.dta") 
 #'
-#'  with(jtpa, ivdesc(age, training, assignmt))
-#'  with(jtpa, ivdesc(hispanic, training, assignmt))
+#'  with(jtpa, ivdesc(age, training, assignmt, bootn=500))
+#'  with(jtpa, ivdesc(hispanic, training, assignmt, boot=FALSE))
 #'  
-#' 
-#'  }
+#'  
+#'  
 #' 
 #' 
 #' @importFrom knitr kable
