@@ -43,7 +43,7 @@
 #' 
 #' 
 #' @examples 
-#'  \donttest{
+#'  
 #' 
 #'  # Example 1: Albertson/Lawrence (2009)
 #'  # see Marbach/Hangartner (2019) for details/discussion
@@ -53,7 +53,9 @@
 #' 
 #'  with(FoxDebate, ivdesc(X=readnews,D=watchpro,Z=conditn) )  
 #' 
-#'  }
+#'  
+#' 
+#'  \donttest{
 #' 
 #'  # Example 2: JTPA Data
 #' 
@@ -62,7 +64,8 @@
 #'
 #'  with(jtpa, ivdesc(age, training, assignmt, bootn=500))
 #'  with(jtpa, ivdesc(hispanic, training, assignmt, boot=FALSE))
-#'  
+#' 
+#'  }
 #'  
 #'  
 #' 

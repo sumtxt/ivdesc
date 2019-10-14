@@ -49,7 +49,7 @@ If \code{boot=FALSE}, analytical standard errors are calculated for the mean of 
 The balance test is a t-test allowing for unequal variances.
 }
 \examples{
- \dontrun{
+ 
 
  # Example 1: Albertson/Lawrence (2009)
  # see Marbach/Hangartner (2019) for details/discussion
@@ -59,17 +59,21 @@ The balance test is a t-test allowing for unequal variances.
 
  with(FoxDebate, ivdesc(X=readnews,D=watchpro,Z=conditn) )  
 
+ 
+
+ \donttest{
 
  # Example 2: JTPA Data
 
  library(haven)
  jtpa <- read_dta("http://fmwww.bc.edu/repec/bocode/j/jtpa.dta") 
 
- with(jtpa, ivdesc(age, training, assignmt))
- with(jtpa, ivdesc(hispanic, training, assignmt))
- 
+ with(jtpa, ivdesc(age, training, assignmt, bootn=500))
+ with(jtpa, ivdesc(hispanic, training, assignmt, boot=FALSE))
 
  }
+ 
+ 
 
 
 }
