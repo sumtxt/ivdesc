@@ -1,14 +1,23 @@
 # ivdesc
 
-Profiling compliers and non-compliers for instrumental variable analysis
+Estimating the mean and variance of a covariate for the complier, never-taker and always-taker subpopulation in the context of instrumental variable estimation. This package implements the method described in [Marbach and Hangartner (2019)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3380247). 
 
 ### Install R Package 
 
-To install the R package directly from Github use `install_github()` function from the `devtools` package that you might have to install first via `install.packages("devtools")`. 
+You can install the package directly from CRAN: 
+
+```R
+install.packages("ivdesc")
+```
+
+Or install the latest version from Github using:  
 
 ```R
 devtools::install_github("sumtxt/ivdesc/R/ivdesc")
 ```
+
+You may need to install the `devtools` package first. 
+
 
 ### Install STATA Package
 
