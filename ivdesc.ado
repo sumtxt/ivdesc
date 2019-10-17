@@ -133,17 +133,16 @@ program ivdesc,  rclass
 		matrix rownames res = "whole sample" "complier" "never-taker" "always-taker"
 			
 		estout matrix(res, `fmt'), mlabels(none) title("Variable: " `X')
-
+		return mat ivdesc = res
 		
 
 		if missing("`noboot'") {
 			
 			estout matrix(pvals, `fmt'), mlabels(none) title("Bootstrapped p-values:")
+			return mat pvals = pvals
 
 		}
 		
-		return mat ivdesc = res
-		return mat pvals = pvals
 
 		if missing("`nobalance'") {
 
