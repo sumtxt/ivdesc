@@ -182,6 +182,8 @@ ivdesc_all <- function(X,D,Z,boot,variance,kappa=FALSE){
 
 	}
 
+	pz <- mean(Z==1)
+
 	se_mu = sd/sqrt(N)
 	se_mu_co = sqrt(get_var_mu_co(N=N, mu=mu, mu_at=mu_at, 
 				mu_nt=mu_nt, v=v, v_at=v_at, v_nt=v_nt, 
