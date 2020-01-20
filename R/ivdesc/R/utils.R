@@ -1,24 +1,39 @@
-get_var_mu_co <- function(N,mu,mu_nt,mu_at,v,v_nt,v_at,pz,pi_nt,pi_at,pi_co){
-
-  # Covariance matrix
-  Cov <- matrix(c(v/N, v_nt/N,v_at/N,(mu_nt-mu)*pi_nt/N,(mu_at-mu)*pi_at/N,
-                  v_nt/N,v_nt/(pz*pi_nt*N),0,0,0,
-                  v_at/N,0,v_at/( (1-pz)*pi_at*N),0,0,
-                  (mu_nt-mu)*pi_nt/N,0,0,pi_nt*(1-pi_nt)/(pz*N),0,
-                  (mu_at-mu)*pi_at/N,0,0,0,pi_at*(1-pi_at)/((1-pz)*N)),nrow=5)
-
-  # Derivatives of estimator
-  dH <- rep(NA,5)
-  dH[1] <- 1/pi_co
-  dH[2] <- -pi_nt/pi_co
-  dH[3] <- -pi_at/pi_co
-  dH[4] <- (mu+mu_nt*(pi_at-1)-mu_at*pi_at)/(pi_co^2)
-  dH[5] <- (mu-mu_nt*pi_nt+mu_at*(pi_nt-1))/(pi_co^2)
-
-  # Delta method
-  # compVar <- t(dH)%*%Cov%*%dH
-
-  # Explicit way taking advantage of known covariance matrix 0s
-  var_mu_co <- sum(dH^2*diag(Cov)) + 2*dH[1]*sum((dH*Cov[1,])[2:5])
+get_var_mu_co <- function(N,X,Z,D){
+  
+  C <- cbind(X,Z*(1-D)*X,D*(1-Z)*X,Z*(1-D),D*(1-Z),Z)
+  
+  empCov <- cov(C)  
+  means <- apply(C,2,mean)
+  
+  hatdH <- deltaH(means[1:3],means[4:6])
+  
+  var_mu_co <- 1/N*t(hatdH)%*%empCov%*%hatdH
+  
   return(var_mu_co)
+  }
+
+
+deltaH <- function(mu,pi){
+  p <- pi[3]
+  
+  q <- pi[1]
+  k <- pi[2]
+  
+  x <- mu[1]
+  y <- mu[2]
+  z <- mu[3]
+  
+  Pco <- (1-q/p-k/(1-p))
+  Mu <- (x-y/p-z/(1-p))
+  
+  dH <- rep(NA,6)
+  
+  dH[1] <- 1/Pco
+  dH[2] <- -1/(Pco*p)
+  dH[3] <-  -1/(Pco*(1-p))
+  dH[4] <- Mu/(Pco^2*p)
+  dH[5] <- Mu/(Pco^2*(1-p))
+  dH[6] <- (k/(1-p)^2*x-q/p^2*x -k/(p*(1-p))^2*y + y/p^2 - z/(1-p)^2 + q/(p*(1-p))^2*z )/(Pco)^2
+
+  return(dH)
   }
