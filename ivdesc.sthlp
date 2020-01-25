@@ -58,6 +58,11 @@ or {it:instrument} are deleted before estimation (listwise deletion).
 {p 4 8 2}{stata "ivdesc age training assignmt":. ivdesc age training assignmt}{p_end}
 {p 4 8 2}{stata "ivdesc hispanic training assignmt":. ivdesc hispanic training assignmt}{p_end}
 
+{pstd}Plot the results
+
+{p 4 8 2}{stata "matrix C = r(ivdesc)'":. matrix C = r(ivdesc)'}{p_end}
+{p 4 8 2}{stata "coefplot matrix(C), se(C[2])":. coefplot matrix(C), se(C[2])}{p_end}
+
 
 {title:Saved results}
 
