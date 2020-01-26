@@ -14,10 +14,10 @@ install.packages("ivdesc")
 Or install the latest version from Github using:  
 
 ```R
-devtools::install_github("sumtxt/ivdesc/R/ivdesc")
+remotes::install_github("sumtxt/ivdesc/R/ivdesc")
 ```
 
-You may need to install the `devtools` package first. 
+You may need to install the `remotes` package first. 
 
 
 ### Install STATA Package
