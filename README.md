@@ -22,7 +22,13 @@ You may need to install the `remotes` package first.
 
 ### Install STATA Package
 
-To install the STATA package directly from Github use:
+To install the STATA package directly from SSC use: 
+
+```STATA
+ssc install ivdesc
+```
+
+Or install the latest version from Github using:  
 
 ```STATA
 github install sumtxt/ivdesc
