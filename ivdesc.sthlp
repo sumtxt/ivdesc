@@ -77,7 +77,7 @@ or {it:instrument} are deleted before estimation (listwise deletion).
 {title:Reference}
 {p 4 8 2}
 
-{pstd}Moritz Marbach and Dominik Hangartner. (2019). Profiling Compliers and Non-compliers for Instrumental Variable Analysis. {it:Political Analysis} (forthcoming). {p_end}
+{pstd}Moritz Marbach and Dominik Hangartner. (2020). Profiling Compliers and Non-compliers for Instrumental Variable Analysis. {it:Political Analysis} 28(3), 435-444. {p_end}
 
 {title:Authors}
 

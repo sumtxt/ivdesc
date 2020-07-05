@@ -3,7 +3,7 @@ Title: Profiling Compliers and Non-Compliers for Instrumental Variable Analysis
 Version: 1.0.0
 Author: Moritz Marbach <moritz.marbach@gess.ethz.ch> [aut, cre]
 Maintainer: Moritz Marbach <moritz.marbach@gess.ethz.ch>
-Description: Estimating the mean and variance of a covariate for the complier, never-taker and always-taker subpopulation in the context of instrumental variable estimation. This package implements the method described in Marbach and Hangartner (2019) <doi:10.1017/pan.2019.48>.
+Description: Estimating the mean and variance of a covariate for the complier, never-taker and always-taker subpopulation in the context of instrumental variable estimation. This package implements the method described in Marbach and Hangartner (2020) <doi:10.1017/pan.2019.48>.
 Depends: R (>= 3.4.0)
 License: GPL-3
 URL: https://github.com/sumtxt/ivdesc/
