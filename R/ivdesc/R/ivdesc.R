@@ -39,7 +39,7 @@
 #'
 #' 
 #' @references
-#' Moritz Marbach and Dominik Hangartner. (2019). Profiling Compliers and Non-compliers for Instrumental Variable Analysis. \emph{Political Analysis} (forthcoming).
+#' Moritz Marbach and Dominik Hangartner. (2020). Profiling Compliers and Non-compliers for Instrumental Variable Analysis. \emph{Political Analysis}, 28(3), 435-444.
 #' 
 #' 
 #' @examples 
