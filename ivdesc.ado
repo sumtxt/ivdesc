@@ -1,7 +1,10 @@
 /*
-Version 1.0.1 (April 30, 2019)
+Version 1.1.0 (July 8, 2020)
 Author:  Moritz Marbach, moritz.marbach@gess.ethz.ch
 URL: https://github.com/sumtxt/ivdesc
+Changelog
+1.0.1 : Added coefplot to help file
+1.1.0 : Added analytical SE for complier mean
 */
 
 program ivdesc,  rclass
@@ -116,7 +119,7 @@ program ivdesc,  rclass
 	
 			if missing("`variance'") {
 
-				matrix input res = ( `r(mu)', `r(se_mu)', 1, 0 \ `r(mu_co)', ., `r(pi_co)', `r(se_pi_co)' \ `r(mu_nt)', `r(se_mu_nt)', `r(pi_nt)', `r(se_pi_nt)' \ `r(mu_at)', `r(se_mu_at)', `r(pi_at)', `r(se_pi_at)'  )
+				matrix input res = ( `r(mu)', `r(se_mu)', 1, 0 \ `r(mu_co)', `r(se_mu_co)', `r(pi_co)', `r(se_pi_co)' \ `r(mu_nt)', `r(se_mu_nt)', `r(pi_nt)', `r(se_pi_nt)' \ `r(mu_at)', `r(se_mu_at)', `r(pi_at)', `r(se_pi_at)'  )
 				matrix colnames res = "Mean" "SE" "Proportion" "SE"
 
 			} 

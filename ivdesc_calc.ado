@@ -1,7 +1,10 @@
 /*
-Version 1.0.1 (April 30, 2019)
+Version 1.1.0 (July 8, 2020)
 Author:  Moritz Marbach, moritz.marbach@gess.ethz.ch
 URL: https://github.com/sumtxt/ivdesc
+Changelog
+1.0.1 : Added coefplot to help file
+1.1.0 : Added analytical SE for complier mean
 */
 
 program ivdesc_calc,  rclass
@@ -28,6 +31,8 @@ program ivdesc_calc,  rclass
 		summarize `Z'
 		local N_z1 = r(sum)
 		local N_z0 = r(N)-r(sum)
+		local N = r(N)
+		local p_z = r(mean)
 
 		local pi_co = `pi_co1'-`pi_co2'
 		local se_pi_co = sqrt( (`v_pi_co1'/`N_z1') + (`v_pi_co2'/`N_z0') )
@@ -120,6 +125,43 @@ program ivdesc_calc,  rclass
 		local se_mu = sqrt(`v')/sqrt(_N)
 		local se_mu_nt = sqrt(`v_nt')/sqrt(`k_nt')
 		local se_mu_at = sqrt(`v_at')/sqrt(`k_at')
+
+		* Start: compute se_mu_co
+		tempvar Z1DX D1ZX Z1D D1Z
+		gen `Z1DX' = `Z'*(1-`D')*`X'
+		gen `D1ZX' = `D'*(1-`Z')*`X'
+		gen `Z1D' = `Z'*(1-`D')
+		gen `D1Z' = `D'*(1-`Z')
+
+ 	 	summarize `Z1DX'
+		local mu_vnt = r(mean)
+
+ 	 	summarize `D1ZX'
+		local mu_vat = r(mean)
+
+		summarize `Z1D'
+		local pi_vnt = r(mean)
+
+		summarize `D1Z'
+		local pi_vat = r(mean)
+
+		corr `X' `Z1DX' `D1ZX' `Z1D' `D1Z' `Z', cov
+		matrix covB = r(C)
+
+	  local Mu = (`mu'-`mu_vnt'/`p_z'-`mu_vat'/(1-`p_z'))
+	  
+	  local b1 = 1/`pi_co'
+	  local b2 = -1/(`pi_co'*`p_z')
+	  local b3 =  -1/(`pi_co'*(1-`p_z'))
+	  local b4 = `Mu'/(`pi_co'^2*`p_z')
+	  local b5 = `Mu'/(`pi_co'^2*(1-`p_z'))
+	  local b6 = (`pi_vat'/(1-`p_z')^2*`mu'-`pi_vnt'/`p_z'^2*`mu' -`pi_vat'/(`p_z'*(1-`p_z'))^2*`mu_vnt' + `mu_vnt'/`p_z'^2 - `mu_vat'/(1-`p_z')^2 + `pi_vnt'/(`p_z'*(1-`p_z'))^2*`mu_vat' )/(`pi_co')^2
+
+	  matrix B = (`b1' \ `b2' \ `b3' \ `b4' \ `b5' \ `b6')
+
+	  matrix tBcovBB = B' * covB * B
+		local se_mu_co = sqrt( (1/`N') * tBcovBB[1,1])
+		* :End 
 	
 	}
 
@@ -132,6 +174,7 @@ program ivdesc_calc,  rclass
 	return scalar se_mu = `se_mu'
 	return scalar se_mu_nt = `se_mu_nt'
 	return scalar se_mu_at = `se_mu_at'
+	return scalar se_mu_co = `se_mu_co'
 
 	return scalar pi_co = `pi_co'
 	return scalar pi_nt = `pi_nt'
