@@ -71,6 +71,7 @@
 #' 
 #' 
 #' @importFrom knitr kable
+#' @importFrom stats var t.test
 #' 
 #' @export
 ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000, balance=TRUE, ...){
@@ -105,7 +106,7 @@ ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000, balance=TRUE, .
   if( (mean(D[Z==1]==1)-mean(D[Z==0]==1))<0 ) stop("First-stage is negative. Please reverse coding of Z.")
   if( sum(D==Z)==length(D) ) stop("There is full compliance with the instrument (D=Z).")
   	
-	res <- ivdesc_all(X,D,Z,boot=boot,variance=variance,...)
+	res <- ivdesc_backend(X,D,Z,boot=boot,variance=variance,...)
 
 	if( balance ){
 		bal <- t.test(X ~ Z, var.equal=FALSE)
@@ -116,6 +117,7 @@ ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000, balance=TRUE, .
 
 	return(res)
 	}
+
 
 #' @method print ivdesc
 #' @export    
@@ -135,5 +137,7 @@ print.ivdesc <- function(x,...) {
 	}
 	invisible(x)
 }
+
+
 
 

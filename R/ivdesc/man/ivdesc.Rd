@@ -4,8 +4,16 @@
 \alias{ivdesc}
 \title{Profiling compliers and non-compliers for instrumental variable analysis}
 \usage{
-ivdesc(X, D, Z, variance = FALSE, boot = TRUE, bootn = 1000,
-  balance = TRUE, ...)
+ivdesc(
+  X,
+  D,
+  Z,
+  variance = FALSE,
+  boot = TRUE,
+  bootn = 1000,
+  balance = TRUE,
+  ...
+)
 }
 \arguments{
 \item{X}{vector with numeric covariate}
@@ -78,7 +86,7 @@ The balance test is a t-test allowing for unequal variances.
 
 }
 \references{
-Moritz Marbach and Dominik Hangartner. (2019). Profiling Compliers and Non-compliers for Instrumental Variable Analysis. \emph{Political Analysis} (forthcoming).
+Moritz Marbach and Dominik Hangartner. (2020). Profiling Compliers and Non-compliers for Instrumental Variable Analysis. \emph{Political Analysis}, 28(3), 435-444.
 }
 \seealso{
 \code{\link[AER]{ivreg}}
