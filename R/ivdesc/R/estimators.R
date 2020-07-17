@@ -1,11 +1,3 @@
-kappa_mu_co <- function(X=X,D=D,Z=Z){
-  
-  kappa <- ( 1-((D*(1-Z))/mean(Z==0)) - (((1-D)*Z)/mean(Z==1)) )
-  mu_co <- mean(X*kappa)/mean(kappa)
-  return(mu_co)
-
-  }
-
 f_mu_co <- function(mu,mu_nt,mu_at,
     pi_co,pi_nt,pi_at,K_at,K_nt){
 
@@ -73,42 +65,50 @@ f_v_co <- function(mu,mu_co,mu_nt,mu_at,
   }
 
 
-f_se_mu_co <- function(N,X,Z,D){
+f_se_mu_co <- function(X,Z,D){
   
+  N <- length(X)
+
   C <- cbind(X,Z*(1-D)*X,D*(1-Z)*X,Z*(1-D),D*(1-Z),Z)
   
-  empCov <- cov(C)  
+  hatSigma <- cov(C)  
   means <- apply(C,2,mean)
   
-  hatdH <- deltaH(means[1:3],means[4:6])
+  hatdH <- deltaH(mu=means[1],
+      mu_vnt=means[2],
+      mu_vat=means[3],
+      pi_vnt=means[4],
+      pi_vat=means[5],
+      pz=means[6])
   
-  var_mu_co <- 1/N*t(hatdH)%*%empCov%*%hatdH
+  var_mu_co <- 1/N*t(hatdH)%*%hatSigma%*%hatdH
   
   return(sqrt(var_mu_co))
   }
 
 
-deltaH <- function(mu,pi){
-  p <- pi[3]
-  
-  q <- pi[1]
-  k <- pi[2]
-  
-  x <- mu[1]
-  y <- mu[2]
-  z <- mu[3]
-  
-  Pco <- (1-q/p-k/(1-p))
-  Mu <- (x-y/p-z/(1-p))
+deltaH <- function(mu,mu_vnt,mu_vat,pi_vnt,pi_vat,pz){
+
+  p_co <- (1-pi_vnt/pz-pi_vat/(1-pz))
+  Mu <- (mu-mu_vnt/pz-mu_vat/(1-pz))
   
   dH <- rep(NA,6)
   
-  dH[1] <- 1/Pco
-  dH[2] <- -1/(Pco*p)
-  dH[3] <-  -1/(Pco*(1-p))
-  dH[4] <- Mu/(Pco^2*p)
-  dH[5] <- Mu/(Pco^2*(1-p))
-  dH[6] <- (k/(1-p)^2*x-q/p^2*x -k/(p*(1-p))^2*y + y/p^2 - z/(1-p)^2 + q/(p*(1-p))^2*z )/(Pco)^2
+  dH[1] <- 1/p_co
+  dH[2] <- -1/(p_co*pz)
+  dH[3] <-  -1/(p_co*(1-pz))
+  dH[4] <- Mu/(p_co^2*pz)
+  dH[5] <- Mu/(p_co^2*(1-pz))
+  dH[6] <- (pi_vat/(1-pz)^2*mu-pi_vnt/pz^2*mu -pi_vat/(pz*(1-pz))^2*mu_vnt + mu_vnt/pz^2 - mu_vat/(1-pz)^2 + pi_vnt/(pz*(1-pz))^2*mu_vat )/(p_co)^2
 
   return(dH)
   }
+
+
+kappa_mu_co <- function(X=X,D=D,Z=Z){
+  
+  kappa <- ( 1-((D*(1-Z))/mean(Z==0)) - (((1-D)*Z)/mean(Z==1)) )
+  mu_co <- mean(X*kappa)/mean(kappa)
+  return(mu_co)
+
+  }  

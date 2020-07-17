@@ -143,7 +143,7 @@ ivdesc_se <- function(X,D,Z){
   K_at = sum(Z==0 & D==1)
 
 	se_mu = sqrt(v/N)
-	se_mu_co = f_se_mu_co(N=N,X=X,Z=Z,D=D)
+	se_mu_co = f_se_mu_co(X=X,Z=Z,D=D)
 	se_mu_nt = sqrt(v_nt/K_nt)
 	se_mu_at = sqrt(v_at/K_at)
 
