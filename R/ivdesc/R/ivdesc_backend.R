@@ -167,10 +167,13 @@ ivdesc_se <- function(X,D,Z){
 
 #' @importFrom rsample analysis
 #' @importFrom rsample bootstraps
-#' @importFrom purrr map_df
 ivdesc_se_boot <- function(X,D,Z,times, ...){
 	df <- bootstraps(data.frame(X=X,D=D,Z=Z), times=times)
-	est <- map_df(df$splits, ivdesc_se_boot_, ...)
+	est <- lapply(df$splits, function(split){
+			with(analysis(split), 
+				ivdesc_means(X,D,Z, output='wide', ...))
+		})
+	est <- do.call(rbind, est)
 	est <- ivdesc_se_boot_sum(est)
 	return(est)
 	}
