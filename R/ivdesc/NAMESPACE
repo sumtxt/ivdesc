@@ -3,7 +3,6 @@
 S3method(print,ivdesc)
 export(ivdesc)
 importFrom(knitr,kable)
-importFrom(purrr,map_df)
 importFrom(rsample,analysis)
 importFrom(rsample,bootstraps)
 importFrom(stats,t.test)

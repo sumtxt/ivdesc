@@ -178,11 +178,6 @@ ivdesc_se_boot <- function(X,D,Z,times, ...){
 	return(est)
 	}
 
-ivdesc_se_boot_ <- function(split, ...) {
-	with(analysis(split), 
-		ivdesc_means(X,D,Z, output='wide', ...))
-	}
-
 ivdesc_se_boot_sum <- function(boot){
 
 	se_mu <- with(boot, sd(mu, na.rm=TRUE) )
