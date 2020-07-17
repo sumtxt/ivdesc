@@ -1,4 +1,71 @@
-get_var_mu_co <- function(N,X,Z,D){
+get_mu_v_co <- function(mu,mu_nt,mu_at,
+    pi_co,pi_nt,pi_at,K_at,K_nt,
+    v,v_nt,v_at,variance=TRUE){
+
+  mu_co <- NA
+  v_co <- NA
+
+  if( K_at<2){
+    
+    mu_co = (1/pi_co) * mu - (pi_nt/pi_co) * mu_nt 
+
+    if (variance) {
+
+      v_co1 = (v_nt * pi_nt) 
+
+      v_co2 = ( mu_co^2 * pi_co * (1-pi_co) )+
+              ( mu_nt^2 * pi_nt * (1-pi_nt) ) 
+
+      v_co3 = (mu_nt * pi_nt * mu_co * pi_co)
+
+      v_co = (1/pi_co)*v - (1/pi_co)*(v_co1 + v_co2 -2 * v_co3)
+
+    }
+
+  } else if (K_nt<2) {
+
+    mu_co = (1/pi_co) * mu - (pi_at/pi_co) * mu_at    
+
+    if (variance) {
+
+      v_co1 = (v_at * pi_at)
+
+      v_co2 = ( mu_co^2 * pi_co * (1-pi_co) )+
+              ( mu_at^2 * pi_at * (1-pi_at) ) 
+
+      v_co3 = (mu_at * pi_at * mu_co * pi_co) 
+
+      v_co = (1/pi_co)*v - (1/pi_co)*(v_co1 + v_co2 -2 * v_co3)
+
+    }
+
+  } else {  
+
+    mu_co = (1/pi_co) * mu - (pi_nt/pi_co) * mu_nt - (pi_at/pi_co) * mu_at
+  
+    if (variance) {
+
+      v_co1 = ( (v_nt) * pi_nt) + ( (v_at) * pi_at)
+    
+      v_co2 = ( mu_co^2 * pi_co * (1-pi_co) )+
+              ( mu_nt^2 * pi_nt * (1-pi_nt) )+
+              ( mu_at^2 * pi_at * (1-pi_at) ) 
+    
+      v_co3 = (mu_nt * pi_nt * mu_co * pi_co) + 
+              (mu_at * pi_at * mu_co * pi_co) + 
+              (mu_at * pi_at * mu_nt * pi_nt) 
+    
+      v_co = (1/pi_co)*(v) - (1/pi_co)*(v_co1 + v_co2 -2 * v_co3)
+
+    }
+  
+  }
+
+  return(c(mu_co,v_co))
+
+  }
+
+get_se_mu_co <- function(N,X,Z,D){
   
   C <- cbind(X,Z*(1-D)*X,D*(1-Z)*X,Z*(1-D),D*(1-Z),Z)
   
@@ -9,7 +76,7 @@ get_var_mu_co <- function(N,X,Z,D){
   
   var_mu_co <- 1/N*t(hatdH)%*%empCov%*%hatdH
   
-  return(var_mu_co)
+  return(sqrt(var_mu_co))
   }
 
 

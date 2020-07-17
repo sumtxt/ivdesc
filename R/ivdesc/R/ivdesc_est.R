@@ -57,19 +57,9 @@ ivdesc_mu_F0 <- function(X,D,Z){
   K_nt = sum(Z==1 & D==0)
   K_at = sum(Z==0 & D==1)
 
-	if( K_at<2){
-		
-		mu_co = (1/pi_co) * mu - (pi_nt/pi_co) * mu_nt 
-
-	} else if (K_nt<2) {
-
-		mu_co = (1/pi_co) * mu - (pi_at/pi_co) * mu_at 		
-
-	} else {	
-
-		mu_co = (1/pi_co) * mu - (pi_nt/pi_co) * mu_nt - (pi_at/pi_co) * mu_at
-		
-		}
+	mu_co <- get_mu_v_co(mu=mu,mu_nt=mu_nt,mu_at=mu_at,
+		pi_co=pi_co,pi_nt=pi_nt,pi_at=pi_at,K_at=K_at,K_nt=K_nt,
+		v=NA,v_nt=NA,v_at=NA,variance=FALSE)[1]
 
 	dat <- data.frame(mu=mu, mu_co=mu_co,mu_nt=mu_nt,mu_at=mu_at, 
 		pi_co=pi_co, pi_nt=pi_nt, pi_at=pi_at)
@@ -113,71 +103,21 @@ ivdesc_all <- function(X,D,Z,boot,variance,kappa=FALSE){
 
 	sd = sqrt(v)
 
-
 	# Mean / variance / standard deviation co
 
 	if(kappa == FALSE){
 
-	if( K_at<2){
-		
-		mu_co = (1/pi_co) * mu - (pi_nt/pi_co) * mu_nt 
+		mu_v_co <- get_mu_v_co(mu=mu,mu_nt=mu_nt,mu_at=mu_at,
+			pi_co=pi_co,pi_nt=pi_nt,pi_at=pi_at,K_at=K_at,K_nt=K_nt,
+			v=v,v_nt=v_nt,v_at=v_at,variance=variance)
 
-		if ( variance == TRUE ) {
+		mu_co <- mu_v_co[1]
+		v_co <- mu_v_co[2]
 
-			v_co1 = (v_nt * pi_nt) 
-
-			v_co2 = ( mu_co^2 * pi_co * (1-pi_co) )+
-							( mu_nt^2 * pi_nt * (1-pi_nt) ) 
-
-			v_co3 = (mu_nt * pi_nt * mu_co * pi_co)
-
-			v_co = (1/pi_co)*v - (1/pi_co)*(v_co1 + v_co2 -2 * v_co3)
-
-		}
-
-	} else if (K_nt<2) {
-
-		mu_co = (1/pi_co) * mu - (pi_at/pi_co) * mu_at 		
-
-		if ( variance == TRUE ) {
-
-			v_co1 = (v_at * pi_at)
-
-			v_co2 = ( mu_co^2 * pi_co * (1-pi_co) )+
-							( mu_at^2 * pi_at * (1-pi_at) ) 
-
-			v_co3 = (mu_at * pi_at * mu_co * pi_co) 
-
-			v_co = (1/pi_co)*v - (1/pi_co)*(v_co1 + v_co2 -2 * v_co3)
-
-		}
-
-	} else {	
-
-		mu_co = (1/pi_co) * mu - (pi_nt/pi_co) * mu_nt - (pi_at/pi_co) * mu_at
-	
-		if ( variance == TRUE ) {
-
-			v_co1 = ( (v_nt) * pi_nt) + ( (v_at) * pi_at)
-		
-			v_co2 = ( mu_co^2 * pi_co * (1-pi_co) )+
-							( mu_nt^2 * pi_nt * (1-pi_nt) )+
-							( mu_at^2 * pi_at * (1-pi_at) ) 
-		
-			v_co3 = (mu_nt * pi_nt * mu_co * pi_co) + 
-							(mu_at * pi_at * mu_co * pi_co) + 
-							(mu_at * pi_at * mu_nt * pi_nt) 
-		
-			v_co = (1/pi_co)*(v) - (1/pi_co)*(v_co1 + v_co2 -2 * v_co3)
-
-		}
-	
-		}
-	
 	} else {
 
 		kappa <- ( 1-((D*(1-Z))/mean(Z==0)) - (((1-D)*Z)/mean(Z==1)) )
-		mu_co <- (1/pi_co)*mean(X*kappa)
+		mu_co <- mean(X*kappa)/mean(kappa)
 		variance <- FALSE 
 
 	}
@@ -185,7 +125,7 @@ ivdesc_all <- function(X,D,Z,boot,variance,kappa=FALSE){
 	pz <- mean(Z==1)
 
 	se_mu = sd/sqrt(N)
-	se_mu_co = sqrt(get_var_mu_co(N=N,X=X,Z=Z,D=D))
+	se_mu_co = get_se_mu_co(N=N,X=X,Z=Z,D=D)
 	se_mu_nt = sd_nt/sqrt(K_nt)
 	se_mu_at = sd_at/sqrt(K_at)
 
