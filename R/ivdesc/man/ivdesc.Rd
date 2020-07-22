@@ -8,6 +8,9 @@ ivdesc(
   X,
   D,
   Z,
+  W = NULL,
+  data = NULL,
+  link = "probit",
   variance = FALSE,
   boot = TRUE,
   bootn = 1000,
@@ -21,6 +24,12 @@ ivdesc(
 \item{D}{vector with binary treatment}
 
 \item{Z}{vector with binary instrument}
+
+\item{W}{vector or formula with covariates}
+
+\item{data}{data frame with covariates included in formula}
+
+\item{link}{"logit" or "probit" for weighting estimator}
 
 \item{variance}{Calculate the variance of the covariate for each subgroup?}
 
@@ -48,7 +57,7 @@ Estimates the mean and variance of a covariate for the complier, never-taker and
 }
 \details{
 This function estimates the mean and the associated standard error of \code{X} for the complier, never-taker and always-taker subpopulation within a sample where some, but not all, units are encouraged by instrument \code{Z} to take the treatment \code{D}. 
-Observations with missing values in either \code{X}, \code{D}, or \code{Z} are droppped (listwise deletion). 
+Observations with missing values in either \code{X}, \code{D},  \code{Z}, or \code{W} are droppped (listwise deletion). 
 
 One-sided noncompliance is supported. The mean for the always-/never-taker subpopulation will only be computed if there are at least two observed units in these subpopulations.
 

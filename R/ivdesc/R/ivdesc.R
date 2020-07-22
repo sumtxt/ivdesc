@@ -7,6 +7,9 @@
 #' @param X vector with numeric covariate
 #' @param D vector with binary treatment 
 #' @param Z vector with binary instrument
+#' @param W vector or formula with covariates
+#' @param data data frame with covariates included in formula  
+#' @param link "logit" or "probit" for weighting estimator
 #' @param boot Replace all standard errors with bootstrap standard errors?
 #' @param bootn number of bootstraps (ignored if \code{boot=FALSE} )
 #' @param variance Calculate the variance of the covariate for each subgroup? 
@@ -15,7 +18,7 @@
 #' 
 #' @details 
 #' This function estimates the mean and the associated standard error of \code{X} for the complier, never-taker and always-taker subpopulation within a sample where some, but not all, units are encouraged by instrument \code{Z} to take the treatment \code{D}. 
-#' Observations with missing values in either \code{X}, \code{D}, or \code{Z} are droppped (listwise deletion). 
+#' Observations with missing values in either \code{X}, \code{D},  \code{Z}, or \code{W} are droppped (listwise deletion). 
 #' 
 #' One-sided noncompliance is supported. The mean for the always-/never-taker subpopulation will only be computed if there are at least two observed units in these subpopulations.
 #' 
@@ -74,7 +77,8 @@
 #' @importFrom stats var t.test
 #' 
 #' @export
-ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000, balance=TRUE, ...){
+ivdesc <- function(X,D,Z,W=NULL,data=NULL,link='probit',
+	variance=FALSE, boot=TRUE, bootn=1000, balance=TRUE, ...){
 
 	# Checks 
 	if(!is.numeric(D)) stop("D has to be numeric with values c(0,1,NA).")
@@ -89,24 +93,50 @@ ivdesc <- function(X,D,Z, variance=FALSE, boot=TRUE, bootn=1000, balance=TRUE, .
 	
 	if( boot==TRUE & bootn<2 ) stop("bootn has be larger than 2.")
 
+	# Format W 
+	if( !is.null(W)){
+		if(is.vector(W)){
+			kappa <- FALSE 
+		} else if (inherits(W,"formula")){
+			kappa <- TRUE 
+			if(is.null(data)) stop("Data required if W is a formula.")
+			W <- model.matrix(W, model.frame(W, 
+				data=data, na.action='na.pass'))
+		}	
+	} 
+
 	if (!is.numeric(X)){ 
 		X <- as.numeric(X)
 		warning("X coerced to numeric.")
 	}
 
 	# Listwise deletion 
-	nomiss <- !is.na(X) & !is.na(D) & !is.na(Z)
+	nomiss <- rows_have_na(X,D,Z,W)
+	n_miss <- sum(nomiss==FALSE)
+	if(n_miss>0) warning(n_miss, " row(s) with missing values deleted.")
+
 	X <- X[nomiss]
 	D <- D[nomiss]
 	Z <- Z[nomiss]
 
+	if(is.vector(W)){
+		W <- W[nomiss]
+	} else {
+		W <- W[nomiss, ,drop=FALSE]
+	}
+
 	if(boot==FALSE) { boot <- 0 }
 	else { boot <- bootn } 
+	
+	p_co <- (mean(D[Z==1]==1)-mean(D[Z==0]==1))
 
-  if( (mean(D[Z==1]==1)-mean(D[Z==0]==1))<0 ) stop("First-stage is negative. Please reverse coding of Z.")
-  if( sum(D==Z)==length(D) ) stop("There is full compliance with the instrument (D=Z).")
-  	
-	res <- ivdesc_backend(X,D,Z,boot=boot,variance=variance,...)
+  if( p_co<0 ) stop("First-stage is negative. Please reverse coding of Z.")
+  if( p_co==1 ) stop("There is full compliance with the instrument (D=Z).")
+  if( p_co==0 ) stop("First-stage is zero. There are no compliers to profile.")
+
+	res <- ivdesc_backend(X=X,D=D,Z=Z,
+		W=W,kappa=kappa,link=link,
+		boot=boot,variance=variance,...)
 
 	if( balance ){
 		bal <- t.test(X ~ Z, var.equal=FALSE)

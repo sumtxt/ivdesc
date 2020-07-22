@@ -1,6 +1,8 @@
 f_mu_co <- function(mu,mu_nt,mu_at,
     pi_co,pi_nt,pi_at,K_at,K_nt){
 
+  if(pi_co==1 & !is.na(pi_co)) return(mu)
+
   if( K_at<2){
     
     mu_co = (1/pi_co) * mu - (pi_nt/pi_co) * mu_nt 
@@ -21,6 +23,8 @@ f_mu_co <- function(mu,mu_nt,mu_at,
 f_v_co <- function(mu,mu_co,mu_nt,mu_at,
     pi_co,pi_nt,pi_at,K_at,K_nt,
     v,v_nt,v_at){
+
+  if(pi_co==1 & !is.na(pi_co)) return(v)
 
   if( K_at<2){
   
@@ -81,7 +85,7 @@ f_se_mu_co <- function(X,Z,D){
       pi_vat=means[5],
       pz=means[6])
   
-  var_mu_co <- 1/N*t(hatdH)%*%hatSigma%*%hatdH
+  var_mu_co <- (1/N)*t(hatdH)%*%hatSigma%*%hatdH
   
   return(sqrt(var_mu_co))
   }
@@ -105,10 +109,52 @@ deltaH <- function(mu,mu_vnt,mu_vat,pi_vnt,pi_vat,pz){
   }
 
 
-kappa_mu_co <- function(X=X,D=D,Z=Z){
-  
-  kappa <- ( 1-((D*(1-Z))/mean(Z==0)) - (((1-D)*Z)/mean(Z==1)) )
-  mu_co <- mean(X*kappa)/mean(kappa)
-  return(mu_co)
+f_boot_se <- function(tau, na.rm=TRUE){
+  B <- length(tau)
+  tau_mu <- mean(tau,na.rm=na.rm)
+  return(sqrt(((1/(B-1)) * sum( (tau-tau_mu)^2, na.rm=na.rm) )))
+  }
 
+
+f_p_Z1 <- function(X,D,Z,W=NULL,link="probit", ...){
+ 
+  if(is.null(W)){
+
+    Z1 <- rep(mean(Z==1), length(X))
+
+  } else {
+
+    m <- glm.fit(y=Z, x=W, 
+        family=binomial(link=link), ...)
+    Z1 <- m[['fitted.values']]
+  
   }  
+
+  return(Z1)
+
+  }
+
+
+f_p_Z1XWDd <- function(X,D,Z,W,d){
+    x <- cbind(W,X)
+    m <- glm.fit(y=Z[D==d], x=x[D==d,], 
+        family=binomial(link="probit"))
+    coef <- m[['coefficients']]
+    phat <- pnorm(x %*% coef)
+    return(phat)
+    }  
+
+trim01 <- function(x){
+  x <- ifelse(x>1, 1, x)
+  x <- ifelse(x<0, 0, x)
+  return(x)
+  }
+
+f_w_at <- function(D,Z,pZ1){
+  return(((D*(1-Z))/(1-pZ1)))
+  }
+
+f_w_nt <- function(D,Z,pZ1){
+  return((((1-D)*Z)/pZ1))
+}
+

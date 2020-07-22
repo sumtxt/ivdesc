@@ -1,28 +1,58 @@
-ivdesc_backend <- function(X,D,Z,boot,variance,kappa=FALSE){
+#' @importFrom rsample analysis
+#' @importFrom rsample bootstraps
+ivdesc_backend <- function(X,D,Z,W,
+		boot,variance,kappa,
+		link=link){
 
-	est_means <- ivdesc_means(X=X,D=D,Z=Z,
-			kappa=kappa,
-			variance=variance,
-			output='long')
-	
-	if(boot>0){
+	if(is.null(W)){
 
-		est_se <- ivdesc_se_boot(X=X,D=D,Z=Z,
-				times=boot,
-				variance=FALSE,
-				kappa=kappa)
+		est_means <- ivdesc_means(X=X,D=D,Z=Z,
+				variance=variance,
+				output='long')
 
-		est_pvals <- est_se$pvals
-		est_se <- est_se$est
+		if(boot>0){
 
-	} else {
+			est_se <- ivdesc_se_boot(X=X,D=D,Z=Z,
+					times=boot,variance=FALSE)
 
-		est_se <- ivdesc_se(X=X,D=D,Z=Z)
+			est_pvals <- est_se$pvals
+			est_se <- est_se$est
+
+		} else {
+
+			est_se <- ivdesc_se(X=X,D=D,Z=Z)
+
+		}
+
+		est <- cbind(est_means, est_se)
+
+	} 
+
+	if(!is.null(W)) {
+
+		est <- ivdesc_adj(X=X,D=D,Z=Z,W=W, 
+				kappa=kappa, output='long',
+				variance=FALSE, link=link)
+		est['var'] <- NA
+		
+		if(boot>0){
+
+			est['mu_se'] <- NULL
+			est['pi_se'] <- NULL
+
+			est_se <- ivdesc_adj_se_boot(X=X,D=D,Z=Z,W=W,
+								times=boot,variance=FALSE,
+								kappa=kappa,link=link)
+
+			est_pvals <- est_se$pvals
+			est <- cbind(est, est_se$est)
+
+		} 
 
 	}
 
 	group=c("sample","co", "nt", "at") 
-	est <- cbind(group,est_means,est_se)
+	est <- cbind(group,est)
 
 	if (variance) {
 
@@ -45,8 +75,7 @@ ivdesc_backend <- function(X,D,Z,boot,variance,kappa=FALSE){
 
 
 ivdesc_means <- function(X,D,Z,
-		variance=TRUE,kappa=FALSE,
-		output='long'){
+		variance=TRUE, output='long'){
 
 	# Sample 
 
@@ -74,16 +103,8 @@ ivdesc_means <- function(X,D,Z,
 
 	# Compliers
 
-	if(kappa){
-
-		mu_co <- kappa_mu_co(X=X,D=D,Z=Z)
-
-	} else {
-
-		mu_co <- f_mu_co(mu=mu,mu_nt=mu_nt,mu_at=mu_at,
-			pi_co=pi_co,pi_nt=pi_nt,pi_at=pi_at,K_at=K_at,K_nt=K_nt)
-
-	}
+	mu_co <- f_mu_co(mu=mu,mu_nt=mu_nt,mu_at=mu_at,
+		pi_co=pi_co,pi_nt=pi_nt,pi_at=pi_at,K_at=K_at,K_nt=K_nt)
 
 	v_co <- f_v_co(mu=mu,mu_co=mu_co,mu_nt=mu_nt,mu_at=mu_at,
 		pi_co=pi_co,pi_nt=pi_nt,pi_at=pi_at,K_at=K_at,K_nt=K_nt, 
@@ -131,7 +152,7 @@ ivdesc_means <- function(X,D,Z,
 	}
 
 
-ivdesc_se <- function(X,D,Z){
+ivdesc_se <- function(X,D,Z,output='long'){
 
 	v = var(X)
 	N <- length(X)
@@ -156,22 +177,43 @@ ivdesc_se <- function(X,D,Z){
 	se_pi_nt = sqrt( v_pi_nt/sum(Z==1) )
 	se_pi_at = sqrt( v_pi_at/sum(Z==0) )
 
-	est = data.frame(
-		mu_se=c(se_mu,se_mu_co,se_mu_nt,se_mu_at),
-		pi_se=c(0,se_pi_co,se_pi_nt,se_pi_at))
+	if(output=='long'){
+		
+		est = data.frame(
+			mu_se=c(se_mu,se_mu_co,se_mu_nt,se_mu_at),
+			pi_se=c(0,se_pi_co,se_pi_nt,se_pi_at))
+
+	} else {
+
+		est = data.frame(
+			se_mu=se_mu,se_mu_co=se_mu_co,
+			se_mu_nt=se_mu_nt,se_mu_at=se_mu_at,
+			se_pi_co=se_pi_co,se_pi_nt=se_pi_nt,
+			se_pi_at=se_pi_at)
+
+	}
 
 	return(est)
 
 	}
 
 
-#' @importFrom rsample analysis
-#' @importFrom rsample bootstraps
 ivdesc_se_boot <- function(X,D,Z,times, ...){
 	df <- bootstraps(data.frame(X=X,D=D,Z=Z), times=times)
 	est <- lapply(df$splits, function(split){
 			with(analysis(split), 
-				ivdesc_means(X,D,Z, output='wide', ...))
+				ivdesc_means(X=X,D=D,Z=Z, output='wide', ...))
+		})
+	est <- do.call(rbind, est)
+	est <- ivdesc_se_boot_sum(est)
+	return(est)
+	}
+
+ivdesc_adj_se_boot <- function(X,D,Z,W=W,times, ...){
+	df <- bootstraps(data.frame(X=X,D=D,Z=Z,W=W), times=times)
+	est <- lapply(df$splits, function(split){
+			with(analysis(split), 
+				ivdesc_adj(X=X,D=D,Z=Z,W=W, output='wide', ...))
 		})
 	est <- do.call(rbind, est)
 	est <- ivdesc_se_boot_sum(est)
@@ -180,14 +222,14 @@ ivdesc_se_boot <- function(X,D,Z,times, ...){
 
 ivdesc_se_boot_sum <- function(boot){
 
-	se_mu <- with(boot, sd(mu, na.rm=TRUE) )
-	se_mu_co <- with(boot, sd(mu_co, na.rm=TRUE) )
-	se_mu_nt <- with(boot, sd(mu_nt, na.rm=TRUE) )
-	se_mu_at <- with(boot, sd(mu_at, na.rm=TRUE) )
+	se_mu <- with(boot, f_boot_se(mu, na.rm=TRUE) )
+	se_mu_co <- with(boot, f_boot_se(mu_co, na.rm=TRUE) )
+	se_mu_nt <- with(boot, f_boot_se(mu_nt, na.rm=TRUE) )
+	se_mu_at <- with(boot, f_boot_se(mu_at, na.rm=TRUE) )
 
-	se_pi_co <- with(boot, sd(pi_co, na.rm=TRUE) )
-	se_pi_nt <- with(boot, sd(pi_nt, na.rm=TRUE) )
-	se_pi_at <- with(boot, sd(pi_at, na.rm=TRUE) )
+	se_pi_co <- with(boot, f_boot_se(pi_co, na.rm=TRUE) )
+	se_pi_nt <- with(boot, f_boot_se(pi_nt, na.rm=TRUE) )
+	se_pi_at <- with(boot, f_boot_se(pi_at, na.rm=TRUE) )
 
 	p_co_nt <- with(boot, mean(mu_co>mu_nt, na.rm=TRUE) )
 	p_nt_co <- with(boot, mean(mu_nt>mu_co, na.rm=TRUE) )
@@ -211,6 +253,153 @@ ivdesc_se_boot_sum <- function(boot){
 	colnames(pvals) <- c("group", "smaller", "greater")
 
 	return(list(est=est, pvals=pvals))
+	}
+
+
+ivdesc_adj <- function(X,D,Z,W,
+		kappa=FALSE, 
+		output="long",variance=FALSE, 
+		link='probit'){
+
+	mu <- mean(X)
+	v <- var(X)
+	N <- length(X)
+	se_mu <- sqrt(v/N)
+
+	if(kappa){
+
+		Z1 <- f_p_Z1(X=X,D=D,Z=Z,W=W,link=link)
+
+		#zd1 <- f_p_Z1XWDd(X=X,D=D,Z=Z,W=W,d=1)
+		#zd0 <- f_p_Z1XWDd(X=X,D=D,Z=Z,W=W,d=0)
+
+		#w_at <- f_w_at(D=D,Z=zd1,pZ1=Z1)
+		#w_nt <- f_w_nt(D=D,Z=zd0,pZ1=Z1)
+		#w_co <- trim01(1-w_at-w_nt)
+
+		w_at <- f_w_at(D=D,Z=Z,pZ1=Z1)
+		w_nt <- f_w_nt(D=D,Z=Z,pZ1=Z1)
+		w_co <- 1-w_at-w_nt
+
+	  mu_co <- weighted.mean(X,w_co)
+	  mu_at <- weighted.mean(X,w_at)
+	  mu_nt <- weighted.mean(X,w_nt)
+
+	  pi_co <- mean(w_co)
+	  pi_at <- mean(w_at)
+	  pi_nt <- mean(w_nt)
+
+	  if(output=='long'){
+
+#		  se_mu_co <- sqrt(var(X)*sum((w_co/sum(w_co))^2))
+#			se_mu_nt <- sqrt(var(X)*sum((w_nt/sum(w_nt))^2))
+#			se_mu_at <- sqrt(var(X)*sum((w_at/sum(w_at))^2))
+
+			se_mu_co <- sqrt(sum((X-mean(X))^2*(w_co/sum(w_co))^2))
+			se_mu_nt <- sqrt(sum((X-mean(X))^2*(w_nt/sum(w_nt))^2))
+			se_mu_at <- sqrt(sum((X-mean(X))^2*(w_at/sum(w_at))^2))
+
+#			se_mu_co <- sqrt(sum((X-mu_co)^2*(w_co/sum(w_co))^2 ))
+#			se_mu_nt <- sqrt(sum((X-mu_nt)^2*(w_nt/sum(w_nt))^2 ))
+#			se_mu_at <- sqrt(sum((X-mu_at)^2*(w_at/sum(w_at))^2 ))
+
+			se_pi_co <- sqrt( (pi_co*(1-pi_co))/sum(w_co) )
+			se_pi_nt <- sqrt( (pi_at*(1-pi_at))/sum(w_at) )
+			se_pi_at <- sqrt( (pi_nt*(1-pi_nt))/sum(w_nt) )
+
+		}
+
+	} else {
+
+		p_s = as.double(table(W)/length(W))
+
+		lst <- data.frame(S=W,X=X,D=D,Z=Z)
+		lst <- split(lst, lst['S'])
+
+	  mu_s <- lapply(lst, function(l){ 
+	  		ivdesc_means(X=l$X,D=l$D,Z=l$Z,
+	  		variance='FALSE', output='wide') 
+	  	})
+		mu_s <- do.call(rbind, mu_s)
+
+		p_co_neg <- sum(mu_s['pi_co']<0, na.rm=TRUE)
+		if(p_co_neg>0) warning(cat(p_co_neg," out of ", nrow(mu_s), 
+			" complier shares are negative."))
+
+		mu_s['pi_nt'] <- (mu_s['pi_nt']*p_s)
+		mu_s['pi_co'] <- (mu_s['pi_co']*p_s)
+		mu_s['pi_at'] <- (mu_s['pi_at']*p_s)
+
+		p_s_nt <- mu_s['pi_nt']/sum(mu_s['pi_nt'], na.rm=TRUE)
+		p_s_co <- mu_s['pi_co']/sum(mu_s['pi_co'], na.rm=TRUE)
+		p_s_at <- mu_s['pi_at']/sum(mu_s['pi_at'], na.rm=TRUE)
+
+	  mu_s['mu_nt'] <- mu_s['mu_nt'] * p_s_nt
+	  mu_s['mu_co'] <- mu_s['mu_co'] * p_s_co
+	  mu_s['mu_at'] <- mu_s['mu_at'] * p_s_at
+
+	  mu_ <- colSums(mu_s,na.rm=TRUE)
+
+	  mu_co <- mu_['mu_co']
+	  mu_nt <- mu_['mu_nt']
+	  mu_at <- mu_['mu_at']
+
+		pi_co <- mu_['pi_co']
+		pi_nt <- mu_['pi_nt']
+		pi_at <- mu_['pi_at']
+
+		if(output=='long'){
+
+		  se_s <- lapply(lst, function(l){ 
+		  		ivdesc_se(X=l$X,D=l$D,Z=l$Z, output='wide') 
+		  	})
+			se_s <- do.call(rbind, se_s)
+
+		  se_s['se_mu_nt'] <- se_s['se_mu_nt']^2 * (p_s_nt)^2
+		  se_s['se_mu_co'] <- se_s['se_mu_co']^2 * (p_s_co)^2
+		  se_s['se_mu_at'] <- se_s['se_mu_at']^2 * (p_s_at)^2
+
+		  se_s['se_pi_nt'] <- se_s['se_pi_nt']^2 * (p_s)^2
+		  se_s['se_pi_co'] <- se_s['se_pi_co']^2 * (p_s)^2
+		  se_s['se_pi_at'] <- se_s['se_pi_at']^2 * (p_s)^2
+
+		  se_ <- colSums(se_s,na.rm=TRUE)
+
+			se_pi_co <- sqrt(se_['se_pi_co'])
+			se_pi_nt <- sqrt(se_['se_pi_nt'])
+			se_pi_at <- sqrt(se_['se_pi_at'])
+
+			se_mu_co <- sqrt(se_['se_mu_co'])
+			se_mu_nt <- sqrt(se_['se_mu_nt'])
+			se_mu_at <- sqrt(se_['se_mu_at'])
+
+		}
+
+	}
+
+	if(output=='long'){
+		
+		est = data.frame(
+			mu=c(mu,mu_co,mu_nt,mu_at),
+			mu_se=c(se_mu,se_mu_co,se_mu_nt,se_mu_at),
+			pi=c(1,pi_co,pi_nt,pi_at), 
+			pi_se=c(0,se_pi_co,se_pi_nt,se_pi_at))
+
+	} else {
+
+		est <- data.frame(
+				mu=mu, mu_co=mu_co,mu_nt=mu_nt,mu_at=mu_at, 
+				pi_co=pi_co, pi_nt=pi_nt, pi_at=pi_at)
+
+	}
+
+	return(est)
+	}
+
+
+rows_have_na <- function(...){
+	miss <- apply(cbind(...),2,is.na)
+	return(rowSums(miss)==0)
 	}
 
 
