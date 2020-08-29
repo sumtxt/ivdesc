@@ -100,8 +100,7 @@ ivdesc <- function(X,D,Z,W=NULL,data=NULL,link='probit',
 		} else if (inherits(W,"formula")){
 			kappa <- TRUE 
 			if(is.null(data)) stop("Data required if W is a formula.")
-			W <- model.matrix(W, model.frame(W, 
-				data=data, na.action='na.pass'))
+			W <- model.frame(W, data=data, na.action='na.pass')
 		}	
 	} 
 

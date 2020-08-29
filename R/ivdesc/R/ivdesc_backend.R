@@ -268,17 +268,14 @@ ivdesc_adj <- function(X,D,Z,W,
 
 	if(kappa){
 
-		Z1 <- f_p_Z1(X=X,D=D,Z=Z,W=W,link=link)
+	  model <- glm(Z ~ ., data=W, 
+	  	family=binomial(link=link),
+	  	x=TRUE)
+	  
+	  pZ1 <- predict(model, type = "response")
 
-		#zd1 <- f_p_Z1XWDd(X=X,D=D,Z=Z,W=W,d=1)
-		#zd0 <- f_p_Z1XWDd(X=X,D=D,Z=Z,W=W,d=0)
-
-		#w_at <- f_w_at(D=D,Z=zd1,pZ1=Z1)
-		#w_nt <- f_w_nt(D=D,Z=zd0,pZ1=Z1)
-		#w_co <- trim01(1-w_at-w_nt)
-
-		w_at <- f_w_at(D=D,Z=Z,pZ1=Z1)
-		w_nt <- f_w_nt(D=D,Z=Z,pZ1=Z1)
+		w_at <- f_w_at(D=D,Z=Z,pZ1=pZ1)
+		w_nt <- f_w_nt(D=D,Z=Z,pZ1=pZ1)
 		w_co <- 1-w_at-w_nt
 
 	  mu_co <- weighted.mean(X,w_co)
@@ -291,17 +288,11 @@ ivdesc_adj <- function(X,D,Z,W,
 
 	  if(output=='long'){
 
-#		  se_mu_co <- sqrt(var(X)*sum((w_co/sum(w_co))^2))
-#			se_mu_nt <- sqrt(var(X)*sum((w_nt/sum(w_nt))^2))
-#			se_mu_at <- sqrt(var(X)*sum((w_at/sum(w_at))^2))
-
-			se_mu_co <- sqrt(sum((X-mean(X))^2*(w_co/sum(w_co))^2))
-			se_mu_nt <- sqrt(sum((X-mean(X))^2*(w_nt/sum(w_nt))^2))
-			se_mu_at <- sqrt(sum((X-mean(X))^2*(w_at/sum(w_at))^2))
-
-#			se_mu_co <- sqrt(sum((X-mu_co)^2*(w_co/sum(w_co))^2 ))
-#			se_mu_nt <- sqrt(sum((X-mu_nt)^2*(w_nt/sum(w_nt))^2 ))
-#			se_mu_at <- sqrt(sum((X-mu_at)^2*(w_at/sum(w_at))^2 ))
+			se_mu_nt <- NA
+			se_mu_at <- NA
+			se_mu_co <- fe_se_mu_adj_co(X=X,
+				Z=Z,D=D,mu_co=mu_co,
+				model=model)
 
 			se_pi_co <- sqrt( (pi_co*(1-pi_co))/sum(w_co) )
 			se_pi_nt <- sqrt( (pi_at*(1-pi_at))/sum(w_at) )

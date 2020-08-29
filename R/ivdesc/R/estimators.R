@@ -116,40 +116,6 @@ f_boot_se <- function(tau, na.rm=TRUE){
   }
 
 
-f_p_Z1 <- function(X,D,Z,W=NULL,link="probit", ...){
- 
-  if(is.null(W)){
-
-    Z1 <- rep(mean(Z==1), length(X))
-
-  } else {
-
-    m <- glm.fit(y=Z, x=W, 
-        family=binomial(link=link), ...)
-    Z1 <- m[['fitted.values']]
-  
-  }  
-
-  return(Z1)
-
-  }
-
-
-f_p_Z1XWDd <- function(X,D,Z,W,d){
-    x <- cbind(W,X)
-    m <- glm.fit(y=Z[D==d], x=x[D==d,], 
-        family=binomial(link="probit"))
-    coef <- m[['coefficients']]
-    phat <- pnorm(x %*% coef)
-    return(phat)
-    }  
-
-trim01 <- function(x){
-  x <- ifelse(x>1, 1, x)
-  x <- ifelse(x<0, 0, x)
-  return(x)
-  }
-
 f_w_at <- function(D,Z,pZ1){
   return(((D*(1-Z))/(1-pZ1)))
   }
@@ -158,3 +124,42 @@ f_w_nt <- function(D,Z,pZ1){
   return((((1-D)*Z)/pZ1))
 }
 
+invlogitprime <- function(x) exp(x)/(exp(x)+1)^2
+
+
+#' @importFrom sandwich estfun
+#' @import stats
+fe_se_mu_adj_co <- function(X,Z,D,mu_co,model){
+
+  pZ1 <- predict(model, type = "response")
+  W <- model$x
+
+  link <- model$family$link
+  
+  if(!(link %in% c("probit", "link"))) {
+    stop("link must be either 'probit' or 'logit'.") }
+
+  if(link=='logit'){
+    pZ1prime <- invlogitprime(predict(model, type='link'))
+    }
+
+  if(link=='probit'){
+    pZ1prime <- dnorm(predict(model, type='link'))
+    }
+
+  Gtheta <- (1-((Z*(1-D))/pZ1)-(((1-Z)*D)/(1-pZ1)))
+  Gtheta <- (-1)*mean(Gtheta)
+
+  Ggamma <- -(Z*(1-D)/pZ1^2)-((1-Z)*D/(1-pZ1)^2)
+  Ggamma <- (-1)*colMeans(Ggamma * pZ1prime * (X-mu_co) * W)
+
+  g_vec <- (1-(Z*(1-D)/pZ1)-((1-Z)*D/(1-pZ1)))*(X-mu_co)
+
+  m_vec <- estfun(model)
+
+  neg_M_inv <- vcov(model)
+
+  V = (1/Gtheta)^2 * mean( (g_vec + (m_vec %*% neg_M_inv) %*% Ggamma )^2 )
+
+  return(sqrt(V/length(X)))
+  }
