@@ -136,7 +136,7 @@ fe_se_mu_adj_co <- function(X,Z,D,mu_co,model){
 
   link <- model$family$link
   
-  if(!(link %in% c("probit", "link"))) {
+  if(!(link %in% c("probit", "logit"))) {
     stop("link must be either 'probit' or 'logit'.") }
 
   if(link=='logit'){
@@ -150,16 +150,16 @@ fe_se_mu_adj_co <- function(X,Z,D,mu_co,model){
   Gtheta <- (1-((Z*(1-D))/pZ1)-(((1-Z)*D)/(1-pZ1)))
   Gtheta <- (-1)*mean(Gtheta)
 
-  Ggamma <- -(Z*(1-D)/pZ1^2)-((1-Z)*D/(1-pZ1)^2)
-  Ggamma <- (-1)*colMeans(Ggamma * pZ1prime * (X-mu_co) * W)
+  Ggamma <- (Z*(1-D)/pZ1^2)-((1-Z)*D/(1-pZ1)^2)
+  Ggamma <- colMeans(Ggamma * pZ1prime * (X-mu_co) * W)
 
   g_vec <- (1-(Z*(1-D)/pZ1)-((1-Z)*D/(1-pZ1)))*(X-mu_co)
 
   m_vec <- estfun(model)
 
-  neg_M_inv <- vcov(model)
+  M_inv <- vcov(model)*length(X)
 
-  V = (1/Gtheta)^2 * mean( (g_vec + (m_vec %*% neg_M_inv) %*% Ggamma )^2 )
+  V = (1/Gtheta)^2 * mean( (g_vec + (m_vec %*% M_inv) %*% Ggamma )^2 )
 
   return(sqrt(V/length(X)))
   }
