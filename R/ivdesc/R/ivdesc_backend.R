@@ -388,9 +388,5 @@ ivdesc_adj <- function(X,D,Z,W,
 	}
 
 
-rows_have_na <- function(...){
-	miss <- apply(cbind(...),2,is.na)
-	return(rowSums(miss)==0)
-	}
 
 

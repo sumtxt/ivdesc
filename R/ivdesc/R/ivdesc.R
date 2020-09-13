@@ -4,12 +4,12 @@
 #' Estimates the mean and variance of a covariate for the complier, never-taker and always-taker subpopulation. 
 #'  
 #' 
-#' @param X vector with numeric covariate
-#' @param D vector with binary treatment 
-#' @param Z vector with binary instrument
-#' @param W vector or formula with covariates
-#' @param data data frame with covariates included in formula  
-#' @param link "logit" or "probit" for weighting estimator
+#' @param X vector or unquoted variable name with numeric covariate
+#' @param D vector or unquoted variable name with binary treatment 
+#' @param Z vector or unquoted variable name with binary instrument
+#' @param W optional matrix or formula with covariates 
+#' @param data data frame with variables 
+#' @param link "logit" or "probit" for kappa estimator
 #' @param boot Replace all standard errors with bootstrap standard errors?
 #' @param bootn number of bootstraps (ignored if \code{boot=FALSE} )
 #' @param variance Calculate the variance of the covariate for each subgroup? 
@@ -20,9 +20,8 @@
 #' This function estimates the mean and the associated standard error of \code{X} for the complier, never-taker and always-taker subpopulation within a sample where some, but not all, units are encouraged by instrument \code{Z} to take the treatment \code{D}. 
 #' Observations with missing values in either \code{X}, \code{D},  \code{Z}, or \code{W} are droppped (listwise deletion). 
 #' 
-#' One-sided noncompliance is supported. The mean for the always-/never-taker subpopulation will only be computed if there are at least two observed units in these subpopulations.
 #' 
-#' If \code{boot=FALSE}, analytical standard errors are calculated for the mean of the whole sample as well as the never-taker and always-taker subpopulation. For the complier subpopulation no analytical estimator for the standard error is available. 
+#' One-sided noncompliance is supported. The mean for the always-/never-taker subpopulation will only be computed if there are at least two observed units in these subpopulations.
 #' 
 #' The balance test is a t-test allowing for unequal variances. 
 #' 
@@ -54,7 +53,7 @@
 #'  library(icsw)
 #'  data(FoxDebate)
 #' 
-#'  with(FoxDebate, ivdesc(X=readnews,D=watchpro,Z=conditn) )  
+#'  ivdesc(X=readnews,D=watchpro,Z=conditn, data=FoxDebate) 
 #' 
 #'  
 #' 
@@ -65,8 +64,8 @@
 #'  library(haven)
 #'  jtpa <- read_dta("http://fmwww.bc.edu/repec/bocode/j/jtpa.dta") 
 #'
-#'  with(jtpa, ivdesc(age, training, assignmt, bootn=500))
-#'  with(jtpa, ivdesc(hispanic, training, assignmt, boot=FALSE))
+#'  ivdesc(age, training, assignmt, data=jtpa, bootn=500)
+#'  ivdesc(hispanic, training, assignmt, data=jtpa, boot=FALSE)
 #' 
 #'  }
 #'  
@@ -77,32 +76,36 @@
 #' @importFrom stats var t.test
 #' 
 #' @export
-ivdesc <- function(X,D,Z,W=NULL,data=NULL,link='probit',
-	variance=FALSE, boot=TRUE, bootn=1000, balance=TRUE, ...){
+ivdesc <- function(X,D,Z,W=NULL,data=NULL, link='probit',
+	variance=FALSE, boot=FALSE, bootn=1000, balance=TRUE, ...){
 
-	# Checks 
-	if(!is.numeric(D)) stop("D has to be numeric with values c(0,1,NA).")
-	if(!is.numeric(Z)) stop("Z has to be numeric with values c(0,1,NA).")
+	if(!is.data.frame(data) & !is.null(data)) data <- as.data.frame(data)
 
-	if( sum(D %in% c(0,1,NA))!=length(D) ) stop("D can only contain values c(0,1,NA).")
-	if( sum(Z %in% c(0,1,NA))!=length(Z) ) stop("Z can only contain values c(0,1,NA).")
+	X <- eval(substitute(X), data)
+	D <- eval(substitute(D), data)
+	Z <- eval(substitute(Z), data)
 
-	if( length(D)!=length(Z) ) stop("D has to be of the same length of Z.") 
-	if( length(X)!=length(Z) ) stop("X has to be of the same length of Z.") 
-	if( length(X)!=length(D) ) stop("X has to be of the same length of D.")
-	
+	check_01_vec(D,"D")	
+	check_01_vec(Z,"Z")	
+
 	if( boot==TRUE & bootn<2 ) stop("bootn has be larger than 2.")
 
 	# Format W 
-	if( !is.null(W)){
-		if(is.vector(W)){
-			kappa <- FALSE 
-		} else if (inherits(W,"formula")){
+	if(!is.null(W)){
+		if(is.matrix(W) | is.vector(W)){
+			kappa <- TRUE 
+			W <- as.data.frame(W)
+		} else if ( is.formula(W) ){
 			kappa <- TRUE 
 			if(is.null(data)) stop("Data required if W is a formula.")
 			W <- model.frame(W, data=data, na.action='na.pass')
-		}	
+		}	else {
+			stop("W must be either a matrix or a formula.")
+		}
 	} 
+
+	if(!is.null(W)) check_len_vec(D,X,Z,W)
+	else check_len_vec(D,X,Z)
 
 	if (!is.numeric(X)){ 
 		X <- as.numeric(X)
@@ -117,12 +120,7 @@ ivdesc <- function(X,D,Z,W=NULL,data=NULL,link='probit',
 	X <- X[nomiss]
 	D <- D[nomiss]
 	Z <- Z[nomiss]
-
-	if(is.vector(W)){
-		W <- W[nomiss]
-	} else {
-		W <- W[nomiss, ,drop=FALSE]
-	}
+	W <- W[nomiss, ,drop=FALSE]
 
 	if(boot==FALSE) { boot <- 0 }
 	else { boot <- bootn } 

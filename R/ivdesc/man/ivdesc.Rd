@@ -12,24 +12,24 @@ ivdesc(
   data = NULL,
   link = "probit",
   variance = FALSE,
-  boot = TRUE,
+  boot = FALSE,
   bootn = 1000,
   balance = TRUE,
   ...
 )
 }
 \arguments{
-\item{X}{vector with numeric covariate}
+\item{X}{vector or unquoted variable name with numeric covariate}
 
-\item{D}{vector with binary treatment}
+\item{D}{vector or unquoted variable name with binary treatment}
 
-\item{Z}{vector with binary instrument}
+\item{Z}{vector or unquoted variable name with binary instrument}
 
-\item{W}{vector or formula with covariates}
+\item{W}{optional matrix or formula with covariates}
 
-\item{data}{data frame with covariates included in formula}
+\item{data}{data frame with variables}
 
-\item{link}{"logit" or "probit" for weighting estimator}
+\item{link}{"logit" or "probit" for kappa estimator}
 
 \item{variance}{Calculate the variance of the covariate for each subgroup?}
 
@@ -59,9 +59,8 @@ Estimates the mean and variance of a covariate for the complier, never-taker and
 This function estimates the mean and the associated standard error of \code{X} for the complier, never-taker and always-taker subpopulation within a sample where some, but not all, units are encouraged by instrument \code{Z} to take the treatment \code{D}. 
 Observations with missing values in either \code{X}, \code{D},  \code{Z}, or \code{W} are droppped (listwise deletion). 
 
-One-sided noncompliance is supported. The mean for the always-/never-taker subpopulation will only be computed if there are at least two observed units in these subpopulations.
 
-If \code{boot=FALSE}, analytical standard errors are calculated for the mean of the whole sample as well as the never-taker and always-taker subpopulation. For the complier subpopulation no analytical estimator for the standard error is available. 
+One-sided noncompliance is supported. The mean for the always-/never-taker subpopulation will only be computed if there are at least two observed units in these subpopulations.
 
 The balance test is a t-test allowing for unequal variances.
 }
@@ -74,7 +73,7 @@ The balance test is a t-test allowing for unequal variances.
  library(icsw)
  data(FoxDebate)
 
- with(FoxDebate, ivdesc(X=readnews,D=watchpro,Z=conditn) )  
+ ivdesc(X=readnews,D=watchpro,Z=conditn, data=FoxDebate) 
 
  
 
@@ -85,8 +84,8 @@ The balance test is a t-test allowing for unequal variances.
  library(haven)
  jtpa <- read_dta("http://fmwww.bc.edu/repec/bocode/j/jtpa.dta") 
 
- with(jtpa, ivdesc(age, training, assignmt, bootn=500))
- with(jtpa, ivdesc(hispanic, training, assignmt, boot=FALSE))
+ ivdesc(age, training, assignmt, data=jtpa, bootn=500)
+ ivdesc(hispanic, training, assignmt, data=jtpa, boot=FALSE)
 
  }
  
