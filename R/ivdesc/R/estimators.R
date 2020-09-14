@@ -129,7 +129,7 @@ invlogitprime <- function(x) exp(x)/(exp(x)+1)^2
 
 #' @importFrom sandwich estfun
 #' @import stats
-fe_se_mu_adj_co <- function(X,Z,D,mu_co,model){
+fe_se_mu_adj <- function(X,Z,D,mu,type,model){
 
   pZ1 <- predict(model, type = "response")
   W <- model$x
@@ -147,13 +147,39 @@ fe_se_mu_adj_co <- function(X,Z,D,mu_co,model){
     pZ1prime <- dnorm(predict(model, type='link'))
     }
 
-  Gtheta <- (1-((Z*(1-D))/pZ1)-(((1-Z)*D)/(1-pZ1)))
+  if(type=='nt'){
+    Gtheta <- (Z*(1-D))/pZ1
+  }
+  if(type=='at'){
+    Gtheta <- ((1-Z)*D)/(1-pZ1)
+  }
+  if(type=='co'){
+    Gtheta <- (1-((Z*(1-D))/pZ1)-(((1-Z)*D)/(1-pZ1)))
+  }
   Gtheta <- (-1)*mean(Gtheta)
 
-  Ggamma <- (Z*(1-D)/pZ1^2)-((1-Z)*D/(1-pZ1)^2)
-  Ggamma <- colMeans(Ggamma * pZ1prime * (X-mu_co) * W)
+  if(type=='nt'){
+    Ggamma <- (Z*(1-D)/pZ1^2)
+  }
+  if(type=='at'){
+    Ggamma <- ((1-Z)*D/(1-pZ1)^2)
+  }
+  if(type=='co'){
+    Ggamma <- (Z*(1-D)/pZ1^2)-((1-Z)*D/(1-pZ1)^2)
+  }
+  Ggamma <- colMeans(Ggamma * pZ1prime * (X-mu) * W)
 
-  g_vec <- (1-(Z*(1-D)/pZ1)-((1-Z)*D/(1-pZ1)))*(X-mu_co)
+  if(type=='nt'){
+    g_vec <- ((Z*(1-D))/pZ1)*(X-mu)
+    }
+
+  if(type=='at'){
+    g_vec <- ((1-Z)*D/(1-pZ1))*(X-mu)
+    }
+
+  if(type=='co'){
+    g_vec <- (1-(Z*(1-D)/pZ1)-((1-Z)*D/(1-pZ1)))*(X-mu)
+    }
 
   m_vec <- estfun(model)
 

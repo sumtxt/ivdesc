@@ -288,10 +288,16 @@ ivdesc_adj <- function(X,D,Z,W,
 
 	  if(output=='long'){
 
-			se_mu_nt <- NA
-			se_mu_at <- NA
-			se_mu_co <- fe_se_mu_adj_co(X=X,
-				Z=Z,D=D,mu_co=mu_co,
+			se_mu_nt <- fe_se_mu_adj(X=X,
+				Z=Z,D=D,mu=mu_co,type='nt', 
+				model=model)
+
+			se_mu_at <- fe_se_mu_adj(X=X,
+				Z=Z,D=D,mu=mu_co,type='at', 
+				model=model)
+
+			se_mu_co <- fe_se_mu_adj(X=X,
+				Z=Z,D=D,mu=mu_co, type='co', 
 				model=model)
 
 			se_pi_co <- sqrt( (pi_co*(1-pi_co))/sum(w_co) )
