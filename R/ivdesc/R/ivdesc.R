@@ -81,9 +81,9 @@ ivdesc <- function(X,D,Z,W=NULL,data=NULL, link='probit',
 
 	if(!is.data.frame(data) & !is.null(data)) data <- as.data.frame(data)
 
-	X <- eval(substitute(X), data)
-	D <- eval(substitute(D), data)
-	Z <- eval(substitute(Z), data)
+	X <- eval(substitute(X), envir=data, enclos=parent.frame() )
+	D <- eval(substitute(D), envir=data, enclos=parent.frame() )
+	Z <- eval(substitute(Z), envir=data, enclos=parent.frame() )
 
 	check_01_vec(D,"D")	
 	check_01_vec(Z,"Z")	
