@@ -268,7 +268,7 @@ ivdesc_adj <- function(X,D,Z,W,
 
 	if(kappa){
 
-	  model <- glm(Z ~ ., data=W, 
+	  model <- glm(Z ~ . + 0, data=W, 
 	  	family=binomial(link=link),
 	  	x=TRUE)
 	  
@@ -289,11 +289,11 @@ ivdesc_adj <- function(X,D,Z,W,
 	  if(output=='long'){
 
 			se_mu_nt <- fe_se_mu_adj(X=X,
-				Z=Z,D=D,mu=mu_co,type='nt', 
+				Z=Z,D=D,mu=mu_nt,type='nt', 
 				model=model)
 
 			se_mu_at <- fe_se_mu_adj(X=X,
-				Z=Z,D=D,mu=mu_co,type='at', 
+				Z=Z,D=D,mu=mu_at,type='at', 
 				model=model)
 
 			se_mu_co <- fe_se_mu_adj(X=X,

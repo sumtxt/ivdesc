@@ -159,7 +159,7 @@ fe_se_mu_adj <- function(X,Z,D,mu,type,model){
   Gtheta <- (-1)*mean(Gtheta)
 
   if(type=='nt'){
-    Ggamma <- (Z*(1-D)/pZ1^2)
+    Ggamma <- -(Z*(1-D)/pZ1^2)
   }
   if(type=='at'){
     Ggamma <- ((1-Z)*D/(1-pZ1)^2)
@@ -174,7 +174,7 @@ fe_se_mu_adj <- function(X,Z,D,mu,type,model){
     }
 
   if(type=='at'){
-    g_vec <- ((1-Z)*D/(1-pZ1))*(X-mu)
+    g_vec <- (((1-Z)*D)/(1-pZ1))*(X-mu)
     }
 
   if(type=='co'){
