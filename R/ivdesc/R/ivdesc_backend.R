@@ -266,111 +266,41 @@ ivdesc_adj <- function(X,D,Z,W,
 	N <- length(X)
 	se_mu <- sqrt(v/N)
 
-	if(kappa){
+  model <- glm(Z ~ . + 0, data=W, 
+  	family=binomial(link=link),
+  	x=TRUE)
+  
+  pZ1 <- predict(model, type = "response")
 
-	  model <- glm(Z ~ . + 0, data=W, 
-	  	family=binomial(link=link),
-	  	x=TRUE)
-	  
-	  pZ1 <- predict(model, type = "response")
+	w_at <- f_w_at(D=D,Z=Z,pZ1=pZ1)
+	w_nt <- f_w_nt(D=D,Z=Z,pZ1=pZ1)
+	w_co <- 1-w_at-w_nt
 
-		w_at <- f_w_at(D=D,Z=Z,pZ1=pZ1)
-		w_nt <- f_w_nt(D=D,Z=Z,pZ1=pZ1)
-		w_co <- 1-w_at-w_nt
+  mu_co <- weighted.mean(X,w_co)
+  mu_at <- weighted.mean(X,w_at)
+  mu_nt <- weighted.mean(X,w_nt)
 
-	  mu_co <- weighted.mean(X,w_co)
-	  mu_at <- weighted.mean(X,w_at)
-	  mu_nt <- weighted.mean(X,w_nt)
+  pi_co <- mean(w_co)
+  pi_at <- mean(w_at)
+  pi_nt <- mean(w_nt)
 
-	  pi_co <- mean(w_co)
-	  pi_at <- mean(w_at)
-	  pi_nt <- mean(w_nt)
+  if(output=='long'){
 
-	  if(output=='long'){
+		se_mu_nt <- fe_se_mu_adj(X=X,
+			Z=Z,D=D,mu=mu_nt,type='nt', 
+			model=model)
 
-			se_mu_nt <- fe_se_mu_adj(X=X,
-				Z=Z,D=D,mu=mu_nt,type='nt', 
-				model=model)
+		se_mu_at <- fe_se_mu_adj(X=X,
+			Z=Z,D=D,mu=mu_at,type='at', 
+			model=model)
 
-			se_mu_at <- fe_se_mu_adj(X=X,
-				Z=Z,D=D,mu=mu_at,type='at', 
-				model=model)
+		se_mu_co <- fe_se_mu_adj(X=X,
+			Z=Z,D=D,mu=mu_co, type='co', 
+			model=model)
 
-			se_mu_co <- fe_se_mu_adj(X=X,
-				Z=Z,D=D,mu=mu_co, type='co', 
-				model=model)
-
-			se_pi_co <- sqrt( (pi_co*(1-pi_co))/sum(w_co) )
-			se_pi_nt <- sqrt( (pi_at*(1-pi_at))/sum(w_at) )
-			se_pi_at <- sqrt( (pi_nt*(1-pi_nt))/sum(w_nt) )
-
-		}
-
-	} else {
-
-		p_s = as.double(table(W)/length(W))
-
-		lst <- data.frame(S=W,X=X,D=D,Z=Z)
-		lst <- split(lst, lst['S'])
-
-	  mu_s <- lapply(lst, function(l){ 
-	  		ivdesc_means(X=l$X,D=l$D,Z=l$Z,
-	  		variance='FALSE', output='wide') 
-	  	})
-		mu_s <- do.call(rbind, mu_s)
-
-		p_co_neg <- sum(mu_s['pi_co']<0, na.rm=TRUE)
-		if(p_co_neg>0) warning(cat(p_co_neg," out of ", nrow(mu_s), 
-			" complier shares are negative."))
-
-		mu_s['pi_nt'] <- (mu_s['pi_nt']*p_s)
-		mu_s['pi_co'] <- (mu_s['pi_co']*p_s)
-		mu_s['pi_at'] <- (mu_s['pi_at']*p_s)
-
-		p_s_nt <- mu_s['pi_nt']/sum(mu_s['pi_nt'], na.rm=TRUE)
-		p_s_co <- mu_s['pi_co']/sum(mu_s['pi_co'], na.rm=TRUE)
-		p_s_at <- mu_s['pi_at']/sum(mu_s['pi_at'], na.rm=TRUE)
-
-	  mu_s['mu_nt'] <- mu_s['mu_nt'] * p_s_nt
-	  mu_s['mu_co'] <- mu_s['mu_co'] * p_s_co
-	  mu_s['mu_at'] <- mu_s['mu_at'] * p_s_at
-
-	  mu_ <- colSums(mu_s,na.rm=TRUE)
-
-	  mu_co <- mu_['mu_co']
-	  mu_nt <- mu_['mu_nt']
-	  mu_at <- mu_['mu_at']
-
-		pi_co <- mu_['pi_co']
-		pi_nt <- mu_['pi_nt']
-		pi_at <- mu_['pi_at']
-
-		if(output=='long'){
-
-		  se_s <- lapply(lst, function(l){ 
-		  		ivdesc_se(X=l$X,D=l$D,Z=l$Z, output='wide') 
-		  	})
-			se_s <- do.call(rbind, se_s)
-
-		  se_s['se_mu_nt'] <- se_s['se_mu_nt']^2 * (p_s_nt)^2
-		  se_s['se_mu_co'] <- se_s['se_mu_co']^2 * (p_s_co)^2
-		  se_s['se_mu_at'] <- se_s['se_mu_at']^2 * (p_s_at)^2
-
-		  se_s['se_pi_nt'] <- se_s['se_pi_nt']^2 * (p_s)^2
-		  se_s['se_pi_co'] <- se_s['se_pi_co']^2 * (p_s)^2
-		  se_s['se_pi_at'] <- se_s['se_pi_at']^2 * (p_s)^2
-
-		  se_ <- colSums(se_s,na.rm=TRUE)
-
-			se_pi_co <- sqrt(se_['se_pi_co'])
-			se_pi_nt <- sqrt(se_['se_pi_nt'])
-			se_pi_at <- sqrt(se_['se_pi_at'])
-
-			se_mu_co <- sqrt(se_['se_mu_co'])
-			se_mu_nt <- sqrt(se_['se_mu_nt'])
-			se_mu_at <- sqrt(se_['se_mu_at'])
-
-		}
+		se_pi_co <- sqrt( (pi_co*(1-pi_co))/sum(w_co) )
+		se_pi_nt <- sqrt( (pi_at*(1-pi_at))/sum(w_at) )
+		se_pi_at <- sqrt( (pi_nt*(1-pi_nt))/sum(w_nt) )
 
 	}
 
