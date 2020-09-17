@@ -189,3 +189,58 @@ fe_se_mu_adj <- function(X,Z,D,mu,type,model){
 
   return(sqrt(V/length(X)))
   }
+
+
+#' @importFrom sandwich estfun
+#' @import stats
+fe_se_pi_adj <- function(Z,D,mu,type,model){
+
+  pZ1 <- predict(model, type = "response")
+  W <- model$x
+
+  link <- model$family$link
+  
+  if(!(link %in% c("probit", "logit"))) {
+    stop("link must be either 'probit' or 'logit'.") }
+
+  if(link=='logit'){
+    pZ1prime <- invlogitprime(predict(model, type='link'))
+    }
+
+  if(link=='probit'){
+    pZ1prime <- dnorm(predict(model, type='link'))
+    }
+
+  Gtheta <- (-1)
+
+  if(type=='nt'){
+    Ggamma <- -(Z*(1-D)/pZ1^2)
+  }
+  if(type=='at'){
+    Ggamma <- ((1-Z)*D/(1-pZ1)^2)
+  }
+  if(type=='co'){
+    Ggamma <- (Z*(1-D)/pZ1^2)-((1-Z)*D/(1-pZ1)^2)
+  }
+  Ggamma <- colMeans(Ggamma * pZ1prime * W)
+
+  if(type=='nt'){
+    g_vec <- ((Z*(1-D))/pZ1)-mu
+    }
+
+  if(type=='at'){
+    g_vec <- (((1-Z)*D)/(1-pZ1))-mu
+    }
+
+  if(type=='co'){
+    g_vec <- (1-(Z*(1-D)/pZ1)-((1-Z)*D/(1-pZ1)))-mu
+    }
+
+  m_vec <- estfun(model)
+
+  M_inv <- vcov(model)*length(Z)
+
+  V = (1/Gtheta)^2 * mean( (g_vec + (m_vec %*% M_inv) %*% Ggamma )^2 )
+
+  return(sqrt(V/length(Z)))
+  }

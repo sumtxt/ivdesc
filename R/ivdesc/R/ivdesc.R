@@ -7,21 +7,23 @@
 #' @param X vector or unquoted variable name with numeric covariate
 #' @param D vector or unquoted variable name with binary treatment 
 #' @param Z vector or unquoted variable name with binary instrument
-#' @param W optional matrix or formula with covariates 
-#' @param data data frame with variables 
-#' @param link "logit" or "probit" for kappa estimator
+#' @param W optional matrix or formula for first-stage regression
+#' @param data optional data frame with variables 
+#' @param link 'logit' or 'probit' link function for first-stage regression?
 #' @param boot Replace all standard errors with bootstrap standard errors?
 #' @param bootn number of bootstraps (ignored if \code{boot=FALSE} )
 #' @param variance Calculate the variance of the covariate for each subgroup? 
 #' @param balance Run balance test? 
+#' @param verbose if TRUE, print first-stage regression summary
 #' @param ... additional arguments to be passed to \code{ivdesc_all} 
 #' 
 #' @details 
 #' This function estimates the mean and the associated standard error of \code{X} for the complier, never-taker and always-taker subpopulation within a sample where some, but not all, units are encouraged by instrument \code{Z} to take the treatment \code{D}. 
 #' Observations with missing values in either \code{X}, \code{D},  \code{Z}, or \code{W} are droppped (listwise deletion). 
 #' 
-#' 
 #' One-sided noncompliance is supported. The mean for the always-/never-taker subpopulation will only be computed if there are at least two observed units in these subpopulations.
+#' 
+#' If additional covariates are defined via the parameter \code{W}, the package uses the kappa-estimator.  
 #' 
 #' The balance test is a t-test allowing for unequal variances. 
 #' 
@@ -77,7 +79,8 @@
 #' 
 #' @export
 ivdesc <- function(X,D,Z,W=NULL,data=NULL, link='probit',
-	variance=FALSE, boot=FALSE, bootn=1000, balance=TRUE, ...){
+	variance=FALSE, boot=FALSE, bootn=1000, balance=TRUE, 
+	verbose=FALSE, ...){
 
 	if(!is.data.frame(data) & !is.null(data)) data <- as.data.frame(data)
 
@@ -98,7 +101,7 @@ ivdesc <- function(X,D,Z,W=NULL,data=NULL, link='probit',
 		} else if ( is.formula(W) ){
 			kappa <- TRUE 
 			if(is.null(data)) stop("Data required if W is a formula.")
-			W <- model.frame(W, data=data, na.action='na.pass')
+			W <- model.matrix(W, data=data, na.action='na.pass')
 		}	else {
 			stop("W must be either a matrix or a formula.")
 		}
@@ -133,7 +136,8 @@ ivdesc <- function(X,D,Z,W=NULL,data=NULL, link='probit',
 
 	res <- ivdesc_backend(X=X,D=D,Z=Z,
 		W=W,kappa=kappa,link=link,
-		boot=boot,variance=variance,...)
+		boot=boot,variance=variance, 
+		verbose=verbose,...)
 
 	if( balance ){
 		bal <- t.test(X ~ Z, var.equal=FALSE)

@@ -15,6 +15,7 @@ ivdesc(
   boot = FALSE,
   bootn = 1000,
   balance = TRUE,
+  verbose = FALSE,
   ...
 )
 }
@@ -25,11 +26,11 @@ ivdesc(
 
 \item{Z}{vector or unquoted variable name with binary instrument}
 
-\item{W}{optional matrix or formula with covariates}
+\item{W}{optional matrix or formula for first-stage regression}
 
-\item{data}{data frame with variables}
+\item{data}{optional data frame with variables}
 
-\item{link}{"logit" or "probit" for kappa estimator}
+\item{link}{'logit' or 'probit' link function for first-stage regression?}
 
 \item{variance}{Calculate the variance of the covariate for each subgroup?}
 
@@ -38,6 +39,8 @@ ivdesc(
 \item{bootn}{number of bootstraps (ignored if \code{boot=FALSE} )}
 
 \item{balance}{Run balance test?}
+
+\item{verbose}{if TRUE, print first-stage regression summary}
 
 \item{...}{additional arguments to be passed to \code{ivdesc_all}}
 }
@@ -59,8 +62,9 @@ Estimates the mean and variance of a covariate for the complier, never-taker and
 This function estimates the mean and the associated standard error of \code{X} for the complier, never-taker and always-taker subpopulation within a sample where some, but not all, units are encouraged by instrument \code{Z} to take the treatment \code{D}. 
 Observations with missing values in either \code{X}, \code{D},  \code{Z}, or \code{W} are droppped (listwise deletion). 
 
-
 One-sided noncompliance is supported. The mean for the always-/never-taker subpopulation will only be computed if there are at least two observed units in these subpopulations.
+
+If additional covariates are defined via the parameter \code{W}, the package uses the kappa-estimator.  
 
 The balance test is a t-test allowing for unequal variances.
 }

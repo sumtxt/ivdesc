@@ -2,7 +2,7 @@
 #' @importFrom rsample bootstraps
 ivdesc_backend <- function(X,D,Z,W,
 		boot,variance,kappa,
-		link=link){
+		link=link,verbose){
 
 	if(is.null(W)){
 
@@ -32,7 +32,8 @@ ivdesc_backend <- function(X,D,Z,W,
 
 		est <- ivdesc_adj(X=X,D=D,Z=Z,W=W, 
 				kappa=kappa, output='long',
-				variance=FALSE, link=link)
+				variance=FALSE, link=link,
+				verbose=verbose)
 		est['var'] <- NA
 		
 		if(boot>0){
@@ -42,7 +43,8 @@ ivdesc_backend <- function(X,D,Z,W,
 
 			est_se <- ivdesc_adj_se_boot(X=X,D=D,Z=Z,W=W,
 								times=boot,variance=FALSE,
-								kappa=kappa,link=link)
+								kappa=kappa,link=link,
+								verbose=FALSE)
 
 			est_pvals <- est_se$pvals
 			est <- cbind(est, est_se$est)
@@ -259,16 +261,21 @@ ivdesc_se_boot_sum <- function(boot){
 ivdesc_adj <- function(X,D,Z,W,
 		kappa=FALSE, 
 		output="long",variance=FALSE, 
-		link='probit'){
+		link='probit', verbose=FALSE){
 
 	mu <- mean(X)
 	v <- var(X)
 	N <- length(X)
 	se_mu <- sqrt(v/N)
 
-  model <- glm(Z ~ . + 0, data=W, 
+  model <- glm(Z ~ . + 0, 
+  	data=as.data.frame(W), 
   	family=binomial(link=link),
   	x=TRUE)
+
+  if(verbose){
+  	print(summary(model))
+  }
   
   pZ1 <- predict(model, type = "response")
 
@@ -298,9 +305,18 @@ ivdesc_adj <- function(X,D,Z,W,
 			Z=Z,D=D,mu=mu_co, type='co', 
 			model=model)
 
-		se_pi_co <- sqrt( (pi_co*(1-pi_co))/sum(w_co) )
-		se_pi_nt <- sqrt( (pi_at*(1-pi_at))/sum(w_at) )
-		se_pi_at <- sqrt( (pi_nt*(1-pi_nt))/sum(w_nt) )
+
+		se_pi_co <- fe_se_pi_adj(
+			Z=Z,D=D,mu=pi_co,type='co', 
+			model=model)
+
+		se_pi_nt <- fe_se_pi_adj(
+			Z=Z,D=D,mu=pi_nt,type='nt', 
+			model=model)
+
+		se_pi_at <- fe_se_pi_adj(
+			Z=Z,D=D,mu=pi_at,type='at', 
+			model=model)
 
 	}
 
