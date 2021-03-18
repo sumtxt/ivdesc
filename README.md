@@ -1,6 +1,6 @@
 # ivdesc
 
-Estimating the mean and variance of a covariate for the complier, never-taker and always-taker subpopulation in the context of instrumental variable estimation. This package implements the method described in [Marbach and Hangartner (2020)](https://doi.org/10.1017/pan.2019.48). 
+Estimating the mean and variance of a covariate for the complier, never-taker and always-taker subpopulation in the context of instrumental variable estimation. This package implements the method described in [Marbach and Hangartner (2020)](https://doi.org/10.1017/pan.2019.48) and [Hangartner, Marbach, Henckel, Maathuis, Kelz and Keele 2021](https://arxiv.org/abs/2103.06328).
 
 
 ### Install R Package 
