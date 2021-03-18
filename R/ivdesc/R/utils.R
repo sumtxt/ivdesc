@@ -1,3 +1,4 @@
+#' @importFrom stats cov
 get_var_mu_co <- function(N,X,Z,D){
   
   C <- cbind(X,Z*(1-D)*X,D*(1-Z)*X,Z*(1-D),D*(1-Z),Z)

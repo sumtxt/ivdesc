@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 1.1.0  July 8, 2020 @ 18:24:26}{...}
+{* *! version 1.1.0  March 18, 2021 @ 18:24:26}{...}
 {cmd:help ivdesc}
 {hline}
 
@@ -21,7 +21,7 @@
 {marker options}{...}
 {title:Options}
 
-{phang}{opt no:boot} report analytical standard errors instead of bootstrap standard errors 
+{phang}{opt no:boot} report standard errors based on asymptotic theory instead of bootstrap standard errors 
 
 {phang}{opt r:eps(#)}  perform # bootstrap replications; default is reps(1000)
 
@@ -44,7 +44,7 @@ or {it:instrument} are deleted before estimation (listwise deletion).
 
 {phang} One-sided noncompliance is supported. The mean for the always-/never-taker subpopulation will only be computed if there are at least two observed units in these subpopulations. 
 
-{phang} If {cmd:noboot}, analytical standard errors are calculated for the mean of the whole sample as well as the never-taker and always-taker subpopulation. For the complier subpopulation no analytical estimator for the standard error is available.  
+{phang} If {cmd:noboot}, standard errors based on asymptotic theory are estimated. 
 
 {phang} The balance test is a t-test allowing for unequal variances. 
 
@@ -77,9 +77,11 @@ or {it:instrument} are deleted before estimation (listwise deletion).
 {title:Reference}
 {p 4 8 2}
 
-{pstd}Moritz Marbach and Dominik Hangartner. (2020). Profiling Compliers and Non-compliers for Instrumental Variable Analysis. {it:Political Analysis} 28(3), 435-444. {p_end}
+{pstd} M. Marbach and D. Hangartner. 2020. Profiling Compliers and Non-compliers for Instrumental Variable Analysis. {it:Political Analysis} 28(3), 435-444. {p_end}
+
+{pstd} D. Hangartner, M. Marbach, L. Henckel, M. H. Maathuis, R. R. Kelz, and L. Keele. 2021. Profiling Compliers in Instrumental Variables Designs. Available at arXiv: https://arxiv.org/abs/2103.06328. {p_end}
 
 {title:Authors}
 
-	Moritz Marbach (Maintainer), moritz.marbach@gess.ethz.ch
-	ETH Zurich, Switzerland
+	Moritz Marbach (Maintainer), moritz.marbach@tamu.edu
+	Texas A&M University, United States

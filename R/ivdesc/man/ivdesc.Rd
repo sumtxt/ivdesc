@@ -4,8 +4,16 @@
 \alias{ivdesc}
 \title{Profiling compliers and non-compliers for instrumental variable analysis}
 \usage{
-ivdesc(X, D, Z, variance = FALSE, boot = TRUE, bootn = 1000,
-  balance = TRUE, ...)
+ivdesc(
+  X,
+  D,
+  Z,
+  variance = FALSE,
+  boot = TRUE,
+  bootn = 1000,
+  balance = TRUE,
+  ...
+)
 }
 \arguments{
 \item{X}{vector with numeric covariate}
@@ -44,7 +52,7 @@ Observations with missing values in either \code{X}, \code{D}, or \code{Z} are d
 
 One-sided noncompliance is supported. The mean for the always-/never-taker subpopulation will only be computed if there are at least two observed units in these subpopulations.
 
-If \code{boot=FALSE}, analytical standard errors are calculated for the mean of the whole sample as well as the never-taker and always-taker subpopulation. For the complier subpopulation no analytical estimator for the standard error is available. 
+If \code{boot=FALSE}, standard errors based on asymptotic theory are estimated.
 
 The balance test is a t-test allowing for unequal variances.
 }
@@ -78,7 +86,9 @@ The balance test is a t-test allowing for unequal variances.
 
 }
 \references{
-Moritz Marbach and Dominik Hangartner. (2019). Profiling Compliers and Non-compliers for Instrumental Variable Analysis. \emph{Political Analysis} (forthcoming).
+M. Marbach and D. Hangartner. 2020. Profiling Compliers and Non-compliers for Instrumental Variable Analysis. \emph{Political Analysis}, 28(3), 435-444.
+
+D. Hangartner, M. Marbach, L. Henckel, M. H. Maathuis, R. R. Kelz, and L. Keele. 2021. Profiling Compliers in Instrumental Variables Designs. Available at arXiv: \href{https://arxiv.org/abs/2103.06328}{https://arxiv.org/abs/2103.06328}.
 }
 \seealso{
 \code{\link[AER]{ivreg}}

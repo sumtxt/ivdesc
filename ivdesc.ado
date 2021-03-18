@@ -1,10 +1,10 @@
 /*
-Version 1.1.0 (July 8, 2020)
-Author:  Moritz Marbach, moritz.marbach@gess.ethz.ch
+Version 1.1.0 (March 18, 2021)
+Author:  Moritz Marbach, moritz.marbach@tamu.edu
 URL: https://github.com/sumtxt/ivdesc
 Changelog
 1.0.1 : Added coefplot to help file
-1.1.0 : Added analytical SE for complier mean
+1.1.0 : Added asymptotic SE for complier mean
 */
 
 program ivdesc,  rclass
