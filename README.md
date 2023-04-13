@@ -2,6 +2,7 @@
 
 <!-- badges: start -->
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/ivdesc)](https://cran.r-project.org/package=ivdesc)
+[![Downloads](https://cranlogs.r-pkg.org/badges/grand-total/ivdesc)](https://CRAN.R-project.org/package=ivdesc)
 [![Downloads](https://cranlogs.r-pkg.org/badges/ivdesc)](https://CRAN.R-project.org/package=ivdesc)
 <!-- badges: end -->
 
