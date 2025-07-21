@@ -2,7 +2,8 @@
 
 # Version 1.1.1 (2025-07-21)
 
-* Added FoxDebate data from archived icsw package
+* Added FoxDebate data from archived icsw package 
+* Removed icsw package dependency
 
 # Version 1.1.0 (2022-12-18)
 
