@@ -1,11 +1,11 @@
-# ivdesc 1.1.1
+# ivdesc 1.1.2
 
-# Version 1.1.1 (2025-07-21)
+# Version 1.1.2 (2025-07-21)
 
 * Added FoxDebate data from archived icsw package 
 * Removed icsw package dependency
 
-# Version 1.1.0 (2022-12-18)
+# Version 1.1.1 (2022-12-18)
 
 * Fixed lazy data note
 
