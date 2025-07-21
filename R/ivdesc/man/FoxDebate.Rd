@@ -5,7 +5,7 @@
 \alias{FoxDebate}
 \title{The effects of watching a Fox debate on Proposition 209}
 \format{
-A data frame with 507 observations on the following 11 variables:
+A data frame with 507 observations on the following 12 variables:
 \describe{
   \item{partyid}{An 11 point scale from "strong Republican" to "strong Democrat".}
   \item{pnintst}{Respondent interest in politics and national affairs. Coded 1 = "very interested", 2 = "somewhat interested", 3 = "only slightly interested", 4 = "not interested at all".}
