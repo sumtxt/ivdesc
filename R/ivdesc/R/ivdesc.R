@@ -47,9 +47,7 @@
 #'  
 #' 
 #'  # Example 1: Albertson/Lawrence (2009)
-#'  # see Marbach/Hangartner (2019) for details/discussion
-#' 
-#'  library(icsw)
+#'  # see Marbach/Hangartner (2019) for details/discussion 
 #'  data(FoxDebate)
 #' 
 #'  with(FoxDebate, ivdesc(X=readnews,D=watchpro,Z=conditn) )  
